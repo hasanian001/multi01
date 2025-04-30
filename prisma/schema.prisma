@@ -35,6 +35,7 @@ model User {
   wishlists    Wishlist[]
   coupons      CouponUser[]
   notifications Notification[]
+  payments     PaymentTransaction[]
 
   @@map("users")
 }
@@ -250,6 +251,7 @@ model Order {
   // Relations
   user            User      @relation(fields: [userId], references: [id])
   items           OrderItem[]
+  payments        PaymentTransaction[]
 
   @@map("orders")
 }
@@ -419,4 +421,50 @@ model Notification {
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
+}
+
+// Payment provider enum
+enum PaymentProvider {
+  STRIPE
+  PAYPAL
+  BANK_TRANSFER
+  SSLCOMMERZ
+  CASH_ON_DELIVERY
+}
+
+// Payment transaction status enum
+enum PaymentTransactionStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+// Payment transaction model
+model PaymentTransaction {
+  id            Int                     @id @default(autoincrement())
+  userId        Int
+  orderId       Int
+  transactionId String                  @unique
+  provider      PaymentProvider
+  amount        Float
+  fee           Float?
+  status        PaymentTransactionStatus
+  paymentMethod String?
+  currency      String?                 @default("USD")
+  billingAddress String?
+  paymentIntent String?
+  receiptUrl    String?
+  refundId      String?
+  metadata      Json?                   @default("{}")
+  created_at    DateTime                @default(now())
+  updated_at    DateTime                @updatedAt
+
+  // Relations
+  user          User                    @relation(fields: [userId], references: [id])
+  order         Order                   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("payment_transactions")
 }

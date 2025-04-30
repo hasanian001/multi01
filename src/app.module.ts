@@ -8,6 +8,14 @@ import { UserModule } from './user/user.module';
 import { ShopModule } from './shop/shop.module';
 import { ProductModule } from './product/product.module';
 import { CategoryModule } from './category/category.module';
+import { BrandModule } from './brand/brand.module';
+import { OrderModule } from './order/order.module';
+import { ReviewModule } from './review/review.module';
+import { CartModule } from './cart/cart.module';
+import { WishlistModule } from './wishlist/wishlist.module';
+import { CouponModule } from './coupon/coupon.module';
+import { PaymentModule } from './payment/payment.module';
+import { AddressModule } from './address/address.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 
@@ -27,6 +35,15 @@ import { AuthGuard } from './auth/auth.guard';
     UserModule,
     ShopModule,
     ProductModule,
+    CategoryModule,
+    BrandModule,
+    OrderModule,
+    ReviewModule,
+    CartModule,
+    WishlistModule,
+    CouponModule,
+    PaymentModule,
+    AddressModule,
     // Add other modules here as we develop them
   ],
   controllers: [],
