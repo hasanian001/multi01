@@ -1,0 +1,306 @@
+
+├── 📄 .env 
+├── 📄 .gitignore 
+├── 📄 create-tree-from-files.exe 
+├── 📄 next-env.d.ts 
+├── 📄 next.config.ts 
+├── 📄 Orders.txt 
+├── 📄 package-lock.json 
+├── 📄 package.json 
+├── 📄 postcss.config.mjs 
+├── 📁 public ===>  [D:\Prgg\Code\js\next\panj\nekts\client\public]
+│   ├── 📄 36.pdf 
+│   ├── 📄 app.png 
+│   ├── 📄 avatar.png 
+│   ├── 📄 cod.jpg 
+│   ├── 📄 Emi.jpg 
+│   ├── 📄 favicon.ico 
+│   ├── 📄 file.svg 
+│   ├── 📄 globe.svg 
+│   ├── 📄 google.png 
+│   ├── 📄 icone.png 
+│   ├── 📁 images ===>  [D:\Prgg\Code\js\next\panj\nekts\client\public\images]
+│   │   ├── 📄 appleAirpods.jpg 
+│   │   ├── 📄 appleWatch.jpg 
+│   │   ├── 📄 banner1.jpg 
+│   │   ├── 📄 banner2.jpg 
+│   │   ├── 📄 banner3.jpg 
+│   │   ├── 📄 collectionAccessories.jpg 
+│   │   ├── 📄 collectionSmartphone.jpg 
+│   │   ├── 📄 collectionTablet.jpg 
+│   │   ├── 📄 collectionWatch.jpg 
+│   │   ├── 📄 defaultUser.png 
+│   │   ├── 📄 djiAd.jpg 
+│   │   ├── 📄 lensAd.jpg 
+│   │   ├── 📄 PS5.webp 
+│   │   ├── 📄 rogAd.jpg 
+│   │   ├── 📄 wacom.jpg 
+│   │   ├── 📄 wideAd1.jpg 
+│   │   ├── 📄 wideAd2.jpg 
+│   │   └── 📄 wideAd3.jpg 
+│   ├── 📄 logo.png 
+│   ├── 📄 next.svg 
+│   ├── 📄 not-found.png 
+│   ├── 📄 placeholder-300.png 
+│   ├── 📄 placeholder-500.png 
+│   ├── 📄 placeholder-615.png 
+│   ├── 📄 SliderSvg(1).svg 
+│   ├── 📄 SliderSvg(2).svg 
+│   ├── 📄 SliderSvg.svg 
+│   ├── 📄 ssl.jpg 
+│   ├── 📄 sslcom.png 
+│   ├── 📄 thanks.png 
+│   ├── 📄 vercel.svg 
+│   └── 📄 window.svg 
+├── 📄 README.md 
+├── 📁 src ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src]
+│   ├── 📁 app ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\app]
+│   │   ├── 📁 about-us ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\app\about-us]
+│   │   │   └── 📄 page.tsx 
+│   │   ├── 📁 all-category ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\app\all-category]
+│   │   │   └── 📄 page.tsx 
+│   │   ├── 📁 checkout ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\app\checkout]
+│   │   │   └── 📄 page.tsx 
+│   │   ├── 📁 components ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\app\components]
+│   │   │   ├── 📁 about ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\app\components\about]
+│   │   │   │   └── 📄 Content.tsx 
+│   │   │   ├── 📁 checkout ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\app\components\checkout]
+│   │   │   │   └── 📄 Steps.tsx 
+│   │   │   ├── 📁 common ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\app\components\common]
+│   │   │   │   └── 📄 Container.tsx 
+│   │   │   ├── 📁 dashboard ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\app\components\dashboard]
+│   │   │   │   ├── 📁 Components ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\app\components\dashboard\Components]
+│   │   │   │   │   └── 📄 Dashboard.tsx 
+│   │   │   │   └── 📄 Layout.tsx 
+│   │   │   ├── 📁 home ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\app\components\home]
+│   │   │   │   ├── 📄 BannerOne.tsx 
+│   │   │   │   ├── 📄 bannerTwo.tsx 
+│   │   │   │   ├── 📄 Brand.tsx 
+│   │   │   │   ├── 📄 Categories.tsx 
+│   │   │   │   ├── 📄 Flash.tsx 
+│   │   │   │   ├── 📄 SectionOne.tsx 
+│   │   │   │   ├── 📄 SectionTwo.tsx 
+│   │   │   │   └── 📄 Shop.tsx 
+│   │   │   └── 📄 Layout.tsx 
+│   │   ├── 📁 dashboard ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\app\dashboard]
+│   │   │   └── 📄 page.tsx 
+│   │   ├── 📁 emi-policy ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\app\emi-policy]
+│   │   │   └── 📄 page.tsx 
+│   │   ├── 📁 flash-deals ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\app\flash-deals]
+│   │   │   └── 📄 page.tsx 
+│   │   ├── 📄 layout.tsx 
+│   │   ├── 📄 page.tsx 
+│   ├── 📁 Components ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components]
+│   │   ├── 📁 About ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\About]
+│   │   │   └── 📄 Content.tsx 
+│   │   ├── 📁 Account ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Account]
+│   │   │   ├── 📄 ForgetForm.tsx 
+│   │   │   ├── 📁 LoginForm ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Account\LoginForm]
+│   │   │   │   ├── 📄 FacebookLogin.tsx 
+│   │   │   │   └── 📄 GoogleLogin.tsx 
+│   │   │   ├── 📄 LoginForm.tsx 
+│   │   │   ├── 📄 OldForm.tsx 
+│   │   │   ├── 📄 RegForm.tsx 
+│   │   │   ├── 📄 ResetForm.tsx 
+│   │   │   └── 📄 VerificationForm.tsx 
+│   │   ├── 📁 Category ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Category]
+│   │   │   ├── 📄 Category.tsx 
+│   │   │   └── 📄 SubCard.tsx 
+│   │   ├── 📁 Checkout ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Checkout]
+│   │   │   ├── 📁 Stepper ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Checkout\Stepper]
+│   │   │   │   ├── 📁 Address ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Checkout\Stepper\Address]
+│   │   │   │   │   ├── 📄 AddAddress.tsx 
+│   │   │   │   │   ├── 📄 AddressMenu.tsx 
+│   │   │   │   │   ├── 📄 area.data.ts 
+│   │   │   │   │   └── 📄 UpdateAddress.tsx 
+│   │   │   │   ├── 📄 Confirm.tsx 
+│   │   │   │   ├── 📄 Products.tsx 
+│   │   │   │   └── 📄 Shipping.tsx 
+│   │   │   └── 📄 Steps.tsx 
+│   │   ├── 📁 Common ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Common]
+│   │   │   ├── 📄 Container.tsx 
+│   │   │   ├── 📄 CustomSelect.tsx 
+│   │   │   ├── 📄 ImagesUploader.tsx 
+│   │   │   ├── 📄 ImageUploader.tsx 
+│   │   │   ├── 📄 Magnify.tsx 
+│   │   │   ├── 📄 Notifications.tsx 
+│   │   │   ├── 📄 Pagination.tsx 
+│   │   │   ├── 📄 ProductCard.tsx 
+│   │   │   └── 📄 Timeline.tsx 
+│   │   ├── 📁 Dashboard ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Dashboard]
+│   │   │   ├── 📁 Components ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Dashboard\Components]
+│   │   │   │   ├── 📄 Dashboard.tsx 
+│   │   │   │   ├── 📁 Order ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Dashboard\Components\Order]
+│   │   │   │   │   ├── 📄 Detail.tsx 
+│   │   │   │   │   ├── 📄 Lists.tsx 
+│   │   │   │   │   └── 📄 ReviewChecker.tsx 
+│   │   │   │   ├── 📁 Points ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Dashboard\Components\Points]
+│   │   │   │   │   ├── 📄 Points.tsx 
+│   │   │   │   │   └── 📄 Redeem.tsx 
+│   │   │   │   ├── 📁 Profile ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Dashboard\Components\Profile]
+│   │   │   │   │   ├── 📄 Password.tsx 
+│   │   │   │   │   └── 📄 Profile.tsx 
+│   │   │   │   ├── 📁 Refund ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Dashboard\Components\Refund]
+│   │   │   │   │   ├── 📄 Add.tsx 
+│   │   │   │   │   ├── 📄 RefundableList.tsx 
+│   │   │   │   │   └── 📄 RefundList.tsx 
+│   │   │   │   └── 📄 Wishlist.tsx 
+│   │   │   ├── 📄 Layout.tsx 
+│   │   │   └── 📄 Sidebar.tsx 
+│   │   ├── 📁 FlashDeals ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\FlashDeals]
+│   │   │   ├── 📄 FlashCard.tsx 
+│   │   │   ├── 📄 FlashDetails.tsx 
+│   │   │   └── 📄 FlashProduct.tsx 
+│   │   ├── 📁 Footer ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Footer]
+│   │   │   ├── 📄 Copyright.tsx 
+│   │   │   ├── 📄 FooterFour.tsx 
+│   │   │   ├── 📄 FooterOne.tsx 
+│   │   │   ├── 📄 FooterThree.tsx 
+│   │   │   └── 📄 FooterTwo.tsx 
+│   │   ├── 📁 Header ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Header]
+│   │   │   ├── 📁 Icons ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Header\Icons]
+│   │   │   │   ├── 📄 Account.tsx 
+│   │   │   │   └── 📄 CartDrawer.tsx 
+│   │   │   ├── 📄 Icons.tsx 
+│   │   │   ├── 📄 Logo.tsx 
+│   │   │   ├── 📁 Navs ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Header\Navs]
+│   │   │   │   └── 📄 Categories.tsx 
+│   │   │   ├── 📄 Navs.tsx 
+│   │   │   ├── 📄 Search.tsx 
+│   │   │   └── 📄 SettingsTest.tsx 
+│   │   ├── 📁 Home ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Home]
+│   │   │   ├── 📄 BannerOne.tsx 
+│   │   │   ├── 📄 bannerTwo.tsx 
+│   │   │   ├── 📄 Brand.tsx 
+│   │   │   ├── 📄 Categories.tsx 
+│   │   │   ├── 📄 Flash.tsx 
+│   │   │   ├── 📁 Products ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Home\Products]
+│   │   │   │   ├── 📄 Carousel.tsx 
+│   │   │   │   └── 📄 Header.tsx 
+│   │   │   ├── 📄 SectionOne.tsx 
+│   │   │   ├── 📄 SectionTwo.tsx 
+│   │   │   └── 📄 Shop.tsx 
+│   │   ├── 📁 Order ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Order]
+│   │   │   ├── 📄 Cancel.tsx 
+│   │   │   ├── 📄 Success.tsx 
+│   │   │   └── 📄 Track.tsx 
+│   │   ├── 📁 PreOrder ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\PreOrder]
+│   │   │   └── 📄 OrderForm.tsx 
+│   │   ├── 📁 Product ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Product]
+│   │   │   ├── 📄 Breadcrumb.tsx 
+│   │   │   ├── 📁 Detail ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Product\Detail]
+│   │   │   │   ├── 📄 BuyButton.tsx 
+│   │   │   │   ├── 📄 CartButton.tsx 
+│   │   │   │   ├── 📄 Counter.tsx 
+│   │   │   │   └── 📄 WishButton.tsx 
+│   │   │   ├── 📄 Detail.tsx 
+│   │   │   ├── 📄 Images.tsx 
+│   │   │   ├── 📁 ProductInfo ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Product\ProductInfo]
+│   │   │   │   ├── 📄 Description.tsx 
+│   │   │   │   ├── 📄 Reviews.tsx 
+│   │   │   │   └── 📄 Specification.tsx 
+│   │   │   ├── 📄 ProductInfo.tsx 
+│   │   │   ├── 📄 SellingProduct.tsx 
+│   │   │   └── 📄 Videos.tsx 
+│   │   └── 📁 Seller ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Components\Seller]
+│   │       ├── 📄 SellerCard.tsx 
+│   │       ├── 📄 SellerForm.tsx 
+│   │       ├── 📄 SellerProduct.tsx 
+│   │       ├── 📄 SellerProfile.tsx 
+│   │       └── 📄 SellerVerify.tsx 
+│   ├── 📁 Context ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Context]
+│   │   ├── 📄 checkout.context.ts 
+│   │   └── 📄 image.context.ts 
+│   ├── 📁 Fonts ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Fonts]
+│   │   └── 📄 index.ts 
+│   ├── 📄 from _urql.code-search 
+│   ├── 📁 Helpers ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Helpers]
+│   │   ├── 📄 checkout.ts 
+│   │   ├── 📄 hook.ts 
+│   │   ├── 📄 s3.config.ts 
+│   │   └── 📄 url.helpers.ts 
+│   ├── 📁 Layout ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Layout]
+│   │   ├── 📄 Footer.tsx 
+│   │   ├── 📄 Header.tsx 
+│   │   └── 📄 index.tsx 
+│   ├── 📄 path.txt 
+│   ├── 📁 styles ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\styles]
+│   │   └── 📄 globals.css 
+│   ├── 📁 Urql ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql]
+│   │   ├── 📄 client.ts 
+│   │   ├── 📁 Query ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query]
+│   │   │   ├── 📁 Account ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Account]
+│   │   │   │   ├── 📄 auth.query.ts 
+│   │   │   │   └── 📄 profile.query.ts 
+│   │   │   ├── 📁 Analytics ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Analytics]
+│   │   │   │   └── 📄 analytics.query.ts 
+│   │   │   ├── 📁 Brand ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Brand]
+│   │   │   │   └── 📄 brand.query.ts 
+│   │   │   ├── 📁 Cart ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Cart]
+│   │   │   │   └── 📄 cart.query.ts 
+│   │   │   ├── 📁 Category ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Category]
+│   │   │   │   └── 📄 category.query.ts 
+│   │   │   ├── 📁 Checkout ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Checkout]
+│   │   │   │   └── 📄 checkout.query.ts 
+│   │   │   ├── 📁 Flash ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Flash]
+│   │   │   │   └── 📄 flash.query.ts 
+│   │   │   ├── 📁 Home ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Home]
+│   │   │   │   └── 📄 home.query.ts 
+│   │   │   ├── 📁 Order ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Order]
+│   │   │   │   └── 📄 order.query.ts 
+│   │   │   ├── 📁 Points ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Points]
+│   │   │   │   └── 📄 point.query.ts 
+│   │   │   ├── 📁 Preorder ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Preorder]
+│   │   │   │   └── 📄 preorder.query.ts 
+│   │   │   ├── 📁 Products ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Products]
+│   │   │   │   └── 📄 product.query.ts 
+│   │   │   ├── 📁 Refund ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Refund]
+│   │   │   │   └── 📄 refund.query.ts 
+│   │   │   ├── 📁 Review ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Review]
+│   │   │   │   └── 📄 review.query.ts 
+│   │   │   ├── 📁 Seller ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Seller]
+│   │   │   │   └── 📄 seller.query.ts 
+│   │   │   ├── 📁 Settings ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Settings]
+│   │   │   │   └── 📄 settings.query.ts 
+│   │   │   └── 📁 Wishlist ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Query\Wishlist]
+│   │   │       └── 📄 wishlist.query.ts 
+│   │   └── 📁 Types ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types]
+│   │       ├── 📁 Account ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Account]
+│   │       │   ├── 📄 auth.types.ts 
+│   │       │   └── 📄 profile.types.ts 
+│   │       ├── 📁 Analytics ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Analytics]
+│   │       │   └── 📄 analytics.types.ts 
+│   │       ├── 📁 Brand ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Brand]
+│   │       │   └── 📄 brand.types.ts 
+│   │       ├── 📁 Cart ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Cart]
+│   │       │   └── 📄 cart.types.ts 
+│   │       ├── 📁 Category ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Category]
+│   │       │   └── 📄 category.types.ts 
+│   │       ├── 📁 Checkout ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Checkout]
+│   │       │   └── 📄 checkout.types.ts 
+│   │       ├── 📁 Flash ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Flash]
+│   │       │   └── 📄 flash.types.ts 
+│   │       ├── 📁 Home ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Home]
+│   │       │   └── 📄 home.types.ts 
+│   │       ├── 📄 Meta.types.ts 
+│   │       ├── 📁 Order ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Order]
+│   │       │   └── 📄 order.types.ts 
+│   │       ├── 📁 Points ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Points]
+│   │       │   └── 📄 point.types.ts 
+│   │       ├── 📁 Preorder ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Preorder]
+│   │       │   └── 📄 preorder.types.ts 
+│   │       ├── 📁 Products ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Products]
+│   │       │   └── 📄 product.types.ts 
+│   │       ├── 📁 Refund ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Refund]
+│   │       │   └── 📄 refund.types.ts 
+│   │       ├── 📁 Review ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Review]
+│   │       │   └── 📄 review.types.ts 
+│   │       ├── 📁 Seller ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Seller]
+│   │       │   └── 📄 seller.types.ts 
+│   │       ├── 📁 Settings ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Settings]
+│   │       │   └── 📄 settings.types.ts 
+│   │       ├── 📄 Success.types.ts 
+│   │       └── 📁 Wishlist ===>  [D:\Prgg\Code\js\next\panj\nekts\client\src\Urql\Types\Wishlist]
+│   │           └── 📄 wishlist.types.ts 
+│   └── 📄 use-client.js 
+└── 📄 tsconfig.json 

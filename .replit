@@ -1,0 +1,18 @@
+modules = ["nodejs-20"]
+
+[workflows]
+runButton = "Dev"
+
+[[workflows.workflow]]
+name = "Dev"
+author = 42105457
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run start:dev"
+
+[[ports]]
+localPort = 3000
+externalPort = 80
+
