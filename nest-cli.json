@@ -7,7 +7,7 @@
   },
   "compilerOptions": {
     "deleteOutDir": true,
-    "excludeFiles": ["**/temp/**/*"],
-    "exclude": ["temp"]
+    "excludeFiles": ["**/temp/**/*", "**/excluded-folder/**/*"],
+    "exclude": ["temp", "excluded-folder"]
   }
 }
