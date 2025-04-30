@@ -34,6 +34,13 @@ type StringArray = Array<string>;
 type QueryParamArray = Array<QueryParam>;
 
 /**
+ * Type for OrderByInput options
+ */
+type OrderByInput = {
+  [key: string]: 'asc' | 'desc';
+};
+
+/**
  * Extends the Prisma client to ensure PaymentTransaction and PaymentRefund models
  * are available for CRUD operations via raw SQL.
  */

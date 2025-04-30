@@ -178,10 +178,46 @@ export class ProductFilterInput {
   @IsPositive()
   brandId?: number;
 
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  mainCategoryId?: number;
+
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
   name?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  status?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  featured?: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  trending?: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  bestSelling?: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  newArrival?: boolean;
 
   @Field(() => Float, { nullable: true })
   @IsOptional()

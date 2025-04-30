@@ -36,6 +36,12 @@ export class CreateOrderInput {
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   discount?: number;
+  
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  shipping_fee?: number;
 
   @Field(() => PaymentMethod)
   @IsEnum(PaymentMethod)
@@ -76,6 +82,16 @@ export class UpdateOrderInput {
   @IsOptional()
   @IsString()
   trackingNumber?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  tracking_number?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  notes?: string;
 
   @Field({ nullable: true })
   @IsOptional()
@@ -126,6 +142,16 @@ export class OrderFilterInput {
   @IsOptional()
   @IsISO8601()
   endDate?: string;
+  
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsISO8601()
+  fromDate?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsISO8601()
+  toDate?: string;
 
   @Field(() => Int, { nullable: true })
   @IsOptional()

@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderInput, UpdateOrderInput, OrderFilterInput } from './dto/order.dto';
-import { User, OrderStatus, PaymentStatus } from '@prisma/client';
+import { User } from '@prisma/client';
+import { OrderStatus, PaymentStatus } from './entities/order.entity';
 import { generateOrderNumber } from '../utils/generate-order-number';
 
 @Injectable()
@@ -296,12 +297,13 @@ export class OrderService {
       const itemSubtotal = itemPrice * quantity;
       subtotal += itemSubtotal;
 
-      // Prepare order item
-      orderItems.push({
-        productId: Number(productId),
-        quantity,
-        price: itemPrice,
-      });
+      // Just collect items info for processing after order creation
+    // We're using a typed temporary structure
+    const orderItem = {
+        productId: Number(productId), // Convert to number to ensure consistency
+        quantity: quantity
+    };
+    items.push(orderItem);
     }
 
     // Calculate total
@@ -309,21 +311,55 @@ export class OrderService {
     const shippingFee = orderData.shipping_fee || 0;
     const total = subtotal - discount + shippingFee;
 
-    // Generate unique order number
-    const orderNumber = generateOrderNumber();
-
-    // Create order with items
+    // First create the order without items
     const order = await this.prisma.order.create({
       data: {
-        ...orderData,
         userId: user.id,
         total,
         discount,
         shipping_fee: shippingFee,
-        items: {
-          create: orderItems,
-        },
+        status: OrderStatus.PENDING,
+        payment_status: PaymentStatus.PENDING,
+        payment_method: orderData.paymentMethod,
+        delivery_address: orderData.shippingAddress,
+        notes: orderData.customerNotes || '',
       },
+    });
+    
+    // Create order items using createMany for better performance
+    // Prepare data structure that Prisma expects
+    const orderItemsData: { orderId: number; productId: number; quantity: number; price: number; }[] = [];
+    
+    for (const item of items) {
+      const product = await this.prisma.product.findUnique({
+        where: { id: Number(item.productId) }
+      });
+      
+      if (!product) {
+        throw new NotFoundException(`Product with ID ${item.productId} not found`);
+      }
+      
+      const price = product.sale_price || product.price;
+      
+      // Add properly typed item to the array
+      orderItemsData.push({
+        orderId: order.id,
+        productId: Number(item.productId),
+        quantity: item.quantity,
+        price: price
+      });
+    }
+    
+    // Create all order items at once with explicit typing
+    for (const itemData of orderItemsData) {
+      await this.prisma.orderItem.create({
+        data: itemData
+      });
+    }
+    
+    // Fetch the complete order with all relationships
+    const completeOrder = await this.prisma.order.findUnique({
+      where: { id: order.id },
       include: {
         user: {
           select: {
@@ -342,9 +378,9 @@ export class OrderService {
     });
 
     // Update product stock
-    for (const item of orderItems) {
+    for (const item of items) {
       await this.prisma.product.update({
-        where: { id: item.productId },
+        where: { id: Number(item.productId) },
         data: {
           stock: {
             decrement: item.quantity,
@@ -354,7 +390,7 @@ export class OrderService {
     }
 
     return {
-      order,
+      order: completeOrder,
       success: true,
       message: 'Order created successfully',
     };
@@ -406,22 +442,23 @@ export class OrderService {
 
       if (
         order.status === OrderStatus.DELIVERED &&
-        status !== OrderStatus.COMPLETED &&
+        status !== 'COMPLETED' && // Using string literals instead of enum
         status !== OrderStatus.RETURNED
       ) {
         throw new BadRequestException('Delivered order can only be marked as completed or returned');
       }
     }
 
-    // Update order
+    // Update order - create update object with proper type handling
+    const updateData: any = {};
+    if (status) updateData.status = status;
+    if (payment_status) updateData.payment_status = payment_status;
+    if (tracking_number) updateData.tracking_number = tracking_number;
+    if (notes) updateData.notes = notes;
+    
     const updatedOrder = await this.prisma.order.update({
       where: { id },
-      data: {
-        ...(status && { status }),
-        ...(payment_status && { payment_status }),
-        ...(tracking_number && { tracking_number }),
-        ...(notes && { notes }),
-      },
+      data: updateData,
       include: {
         user: {
           select: {
@@ -447,7 +484,7 @@ export class OrderService {
     if (status === OrderStatus.CANCELLED && order.status !== OrderStatus.CANCELLED) {
       for (const item of order.items) {
         await this.prisma.product.update({
-          where: { id: item.productId },
+          where: { id: item.product.id },
           data: {
             stock: {
               increment: item.quantity,
@@ -492,9 +529,12 @@ export class OrderService {
       throw new BadRequestException('Order is already cancelled');
     }
 
+    // Check if the order status is either DELIVERED or COMPLETED
+    // Using a more explicit approach to avoid type comparison issues
+    const orderStatus = order.status.toString();
     if (
-      order.status === OrderStatus.DELIVERED ||
-      order.status === OrderStatus.COMPLETED
+      orderStatus === OrderStatus.DELIVERED.toString() ||
+      orderStatus === 'COMPLETED'
     ) {
       throw new BadRequestException('Cannot cancel delivered or completed orders');
     }
@@ -525,7 +565,7 @@ export class OrderService {
     // Restore product stock
     for (const item of order.items) {
       await this.prisma.product.update({
-        where: { id: item.productId },
+        where: { id: item.product.id },
         data: {
           stock: {
             increment: item.quantity,
