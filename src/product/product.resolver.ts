@@ -23,7 +23,8 @@ export class ProductResolver {
   async product(
     @Args('id', { type: () => Int }) id: number,
   ): Promise<ProductResponse> {
-    return this.productService.findOne(id);
+    // Convert id to string for the service
+    return this.productService.findOne(id.toString());
   }
 
   @Query(() => ProductsResponse)

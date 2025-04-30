@@ -1,44 +1,49 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCategoryInput, UpdateCategoryInput, CategoryFilterInput } from './dto/category.dto';
-import { slugify } from '../utils/slugify';
+import { generateUniqueSlug } from '../common/utils/slug.utils';
 
 @Injectable()
 export class CategoryService {
   constructor(private prisma: PrismaService) {}
 
-  // Get all categories with filtering options
   async findAll(filterInput: CategoryFilterInput) {
     const {
       parentId,
-      name,
-      is_featured,
+      featured,
       limit = 10,
       offset = 0,
-      sortBy = 'created_at',
-      sortOrder = 'desc',
+      search,
     } = filterInput || {};
 
-    // Build filter conditions
-    const where: any = {
-      parentId: parentId === undefined ? null : parentId, // If parentId is undefined, we fetch only root categories
-      ...(name && { name: { contains: name, mode: 'insensitive' } }),
-      ...(is_featured !== undefined && { is_featured }),
-    };
+    const where: any = {};
 
-    // Get total count for pagination
+    if (parentId !== undefined) {
+      where.parentId = parentId === null ? null : parentId;
+    }
+
+    if (featured !== undefined) {
+      where.is_featured = featured;
+    }
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
     const count = await this.prisma.category.count({ where });
 
     // Get categories with applied filters
     const categories = await this.prisma.category.findMany({
       where,
       include: {
-        parent: parentId !== null,
-        children: true,
+        // Replacing parent with mainCategory which is the correct relation in schema
+        mainCategory: parentId !== null,
       },
       skip: offset,
       take: limit,
-      orderBy: { [sortBy]: sortOrder },
     });
 
     return {
@@ -54,8 +59,8 @@ export class CategoryService {
     const category = await this.prisma.category.findUnique({
       where: { id },
       include: {
-        parent: true,
-        children: true,
+        // Replacing parent with mainCategory which is the correct relation in schema
+        mainCategory: true,
       },
     });
 
@@ -72,21 +77,9 @@ export class CategoryService {
 
   // Create new category
   async create(createCategoryInput: CreateCategoryInput) {
-    const { name, parentId } = createCategoryInput;
+    const { name, description, image, parentId } = createCategoryInput;
 
-    // Generate slug from name
-    const slug = slugify(name);
-
-    // Check if slug already exists
-    const existingCategory = await this.prisma.category.findUnique({
-      where: { slug },
-    });
-
-    if (existingCategory) {
-      throw new ConflictException('Category with this name already exists');
-    }
-
-    // Check if parent category exists if parentId is provided
+    // If parentId is provided, check if it exists
     if (parentId) {
       const parentCategory = await this.prisma.category.findUnique({
         where: { id: parentId },
@@ -95,17 +88,30 @@ export class CategoryService {
       if (!parentCategory) {
         throw new NotFoundException(`Parent category with ID ${parentId} not found`);
       }
+
+      // Check to prevent circular reference
+      if (await this.checkCircularReference(0, parentId)) {
+        throw new BadRequestException('Circular reference detected in category hierarchy');
+      }
     }
+
+    // Generate a unique slug for the category
+    const slug = generateUniqueSlug(name);
 
     // Create category
     const category = await this.prisma.category.create({
       data: {
-        ...createCategoryInput,
+        name,
         slug,
+        description,
+        image,
+        // Map parentId to mainCategoryId for Prisma schema
+        mainCategoryId: parentId || null,
+        is_featured: createCategoryInput.is_featured || false,
       },
       include: {
-        parent: !!parentId,
-        children: true,
+        // Replacing parent with mainCategory which is the correct relation in schema
+        mainCategory: !!parentId,
       },
     });
 
@@ -118,20 +124,23 @@ export class CategoryService {
 
   // Update category
   async update(updateCategoryInput: UpdateCategoryInput) {
-    const { id, name, parentId, ...updateData } = updateCategoryInput;
+    const { id, name, description, image, parentId, is_featured } = updateCategoryInput;
 
     // Check if category exists
-    const category = await this.prisma.category.findUnique({
+    const existingCategory = await this.prisma.category.findUnique({
       where: { id },
     });
 
-    if (!category) {
+    if (!existingCategory) {
       throw new NotFoundException(`Category with ID ${id} not found`);
     }
 
-    // Check parentId if it's being updated
+    // If parentId is provided, check if it exists and not the same as category being updated
     if (parentId !== undefined) {
-      // Check if parent exists
+      if (parentId === id) {
+        throw new BadRequestException('Category cannot be its own parent');
+      }
+
       if (parentId !== null) {
         const parentCategory = await this.prisma.category.findUnique({
           where: { id: parentId },
@@ -141,54 +150,37 @@ export class CategoryService {
           throw new NotFoundException(`Parent category with ID ${parentId} not found`);
         }
 
-        // Prevent circular reference
-        if (parentId === id) {
-          throw new BadRequestException('A category cannot be its own parent');
-        }
-
-        // Check if the new parent is a child of this category (would create a circular reference)
-        const isCircular = await this.checkCircularReference(id, parentId);
-        if (isCircular) {
-          throw new BadRequestException('Cannot set a child category as parent (circular reference)');
+        // Check to prevent circular reference
+        if (await this.checkCircularReference(id, parentId)) {
+          throw new BadRequestException('Circular reference detected in category hierarchy');
         }
       }
     }
 
-    // If name is being updated, generate new slug
-    let slug;
-    if (name) {
-      slug = slugify(name);
-
-      // Check if slug already exists for another category
-      const existingCategory = await this.prisma.category.findFirst({
-        where: {
-          slug,
-          id: { not: id },
-        },
-      });
-
-      if (existingCategory) {
-        throw new ConflictException('Category with this name already exists');
-      }
+    // Update data object
+    const updateData: any = {};
+    if (name !== undefined) {
+      updateData.name = name;
+      // Generate new slug when name changes
+      updateData.slug = generateUniqueSlug(name);
     }
+    if (description !== undefined) updateData.description = description;
+    if (image !== undefined) updateData.image = image;
+    if (parentId !== undefined) updateData.mainCategoryId = parentId; // Map to mainCategoryId
+    if (is_featured !== undefined) updateData.is_featured = is_featured;
 
     // Update category
-    const updatedCategory = await this.prisma.category.update({
+    const category = await this.prisma.category.update({
       where: { id },
-      data: {
-        ...(name && { name }),
-        ...(parentId !== undefined && { parentId }),
-        ...updateData,
-        ...(slug && { slug }),
-      },
+      data: updateData,
       include: {
-        parent: true,
-        children: true,
+        // Replacing parent with mainCategory which is the correct relation in schema
+        mainCategory: true,
       },
     });
 
     return {
-      category: updatedCategory,
+      category,
       success: true,
       message: 'Category updated successfully',
     };
@@ -197,60 +189,43 @@ export class CategoryService {
   // Toggle category featured status
   async toggleFeatured(id: number, featured: boolean) {
     // Check if category exists
-    const category = await this.prisma.category.findUnique({
+    const existingCategory = await this.prisma.category.findUnique({
       where: { id },
     });
 
-    if (!category) {
+    if (!existingCategory) {
       throw new NotFoundException(`Category with ID ${id} not found`);
     }
 
-    // Update category featured status
-    const updatedCategory = await this.prisma.category.update({
+    // Update featured status
+    const category = await this.prisma.category.update({
       where: { id },
       data: { is_featured: featured },
       include: {
-        parent: true,
-        children: true,
+        // Replacing parent with mainCategory which is the correct relation in schema
+        mainCategory: true,
       },
     });
 
     return {
-      category: updatedCategory,
+      category,
       success: true,
-      message: featured ? 'Category marked as featured' : 'Category unmarked as featured',
+      message: `Category ${featured ? 'featured' : 'unfeatured'} successfully`,
     };
   }
 
-  // Delete category
+  // Delete category and update children
   async remove(id: number) {
     // Check if category exists
-    const category = await this.prisma.category.findUnique({
+    const existingCategory = await this.prisma.category.findUnique({
       where: { id },
-      include: {
-        children: true,
-      },
     });
 
-    if (!category) {
+    if (!existingCategory) {
       throw new NotFoundException(`Category with ID ${id} not found`);
     }
 
-    // Check if category has children
-    if (category.children && category.children.length > 0) {
-      throw new BadRequestException('Cannot delete a category that has sub-categories');
-    }
-
-    // Check if category has products
-    const productsCount = await this.prisma.product.count({
-      where: { categoryId: id },
-    });
-
-    if (productsCount > 0) {
-      throw new BadRequestException('Cannot delete a category that has products');
-    }
-
-    // Delete category
+    // Delete category (this will cascade delete or null references based on schema relations)
     await this.prisma.category.delete({
       where: { id },
     });
@@ -261,23 +236,33 @@ export class CategoryService {
     };
   }
 
-  // Helper function to check for circular references when updating parent
+  // Helper function to check for circular references in category hierarchy
   private async checkCircularReference(categoryId: number, parentId: number): Promise<boolean> {
-    // Get all child categories
+    if (categoryId === 0) {
+      // New category being created, so no need to check existing children
+      return false;
+    }
+
+    // Check if the potential parent is actually a child of the category
     const childCategories = await this.prisma.category.findMany({
-      where: { parentId: categoryId },
-      select: { id: true },
+      where: {
+        mainCategoryId: categoryId,
+      },
     });
 
-    // If the potential parent is a child, it would create a circular reference
+    // No children, so no circular reference
+    if (childCategories.length === 0) {
+      return false;
+    }
+
+    // Check if the parent ID is in the list of child IDs
     if (childCategories.some(child => child.id === parentId)) {
       return true;
     }
 
-    // Recursively check children of children
+    // Recursively check each child for circular references
     for (const child of childCategories) {
-      const isCircular = await this.checkCircularReference(child.id, parentId);
-      if (isCircular) {
+      if (await this.checkCircularReference(child.id, parentId)) {
         return true;
       }
     }

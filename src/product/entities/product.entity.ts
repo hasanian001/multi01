@@ -69,7 +69,7 @@ export class Product {
 @ObjectType()
 export class ProductResponse {
   @Field(() => Product, { nullable: true })
-  product?: any;
+  product?: Product | null;
 
   @Field()
   success: boolean;
@@ -81,7 +81,7 @@ export class ProductResponse {
 @ObjectType()
 export class ProductsResponse {
   @Field(() => [Product])
-  products: any[];
+  products: Product[];
 
   @Field()
   success: boolean;

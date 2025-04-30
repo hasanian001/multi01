@@ -29,9 +29,6 @@ type PaymentRefundAttributes = {
 
 // Type for query parameters
 type QueryParam = string | number | boolean | null;
-// Arrays need to allow string elements
-type StringArray = Array<string>;
-type QueryParamArray = Array<QueryParam>;
 
 /**
  * Type for OrderByInput options
@@ -73,8 +70,8 @@ export function extendPrismaClient(prisma: PrismaClient) {
           const { where, orderBy, skip, take } = args || {};
           let query = `SELECT * FROM "PaymentTransaction"`;
           
-          const whereConditions: StringArray = [];
-          const params: QueryParamArray = [];
+          const whereConditions: string[] = [];
+          const params: QueryParam[] = [];
           
           // Build basic WHERE clause
           if (where) {
@@ -102,7 +99,7 @@ export function extendPrismaClient(prisma: PrismaClient) {
           
           // Ordering
           if (orderBy) {
-            const orderByClauses: StringArray = [];
+            const orderByClauses: string[] = [];
             for (const [field, direction] of Object.entries(orderBy)) {
               orderByClauses.push(`"${field}" ${direction === 'desc' ? 'DESC' : 'ASC'}`);
             }
@@ -125,8 +122,8 @@ export function extendPrismaClient(prisma: PrismaClient) {
           const { where } = args || {};
           let query = `SELECT COUNT(*) FROM "PaymentTransaction"`;
           
-          const whereConditions: StringArray = [];
-          const params: QueryParamArray = [];
+          const whereConditions: string[] = [];
+          const params: QueryParam[] = [];
           
           if (where) {
             if (where.userId) {
@@ -151,9 +148,9 @@ export function extendPrismaClient(prisma: PrismaClient) {
             query += ` WHERE ${whereConditions.join(' AND ')}`;
           }
           
-          const result = await prisma.$queryRawUnsafe<[{count: string}]>(query, ...params);
-          if (result && result[0]) {
-            return Number(result[0].count);
+          const result = await prisma.$queryRawUnsafe<Array<{count: string}>>(query, ...params);
+          if (result && result.length > 0 && result[0]) {
+            return Number(result[0]?.count || 0);
           }
           return 0;
         },
@@ -171,7 +168,7 @@ export function extendPrismaClient(prisma: PrismaClient) {
           
           const result = await prisma.$queryRawUnsafe<any[]>(query, ...values);
           if (result && result.length > 0) {
-            return result[0];
+            return result[0] as any;
           }
           return null;
         },
@@ -209,7 +206,7 @@ export function extendPrismaClient(prisma: PrismaClient) {
           
           const result = await prisma.$queryRawUnsafe<any[]>(query, ...values);
           if (result && result.length > 0) {
-            return result[0];
+            return result[0] as any;
           }
           return null;
         }
@@ -231,7 +228,7 @@ export function extendPrismaClient(prisma: PrismaClient) {
           
           const result = await prisma.$queryRawUnsafe<any[]>(query, ...values);
           if (result && result.length > 0) {
-            return result[0];
+            return result[0] as any;
           }
           return null;
         },
@@ -253,6 +250,9 @@ export function extendPrismaClient(prisma: PrismaClient) {
           } else if (where.refundId) {
             whereClause = `WHERE "refundId" = $${values.length + 1}`;
             values.push(where.refundId);
+          } else if (where.paymentTransactionId) {
+            whereClause = `WHERE "paymentTransactionId" = $${values.length + 1}`;
+            values.push(where.paymentTransactionId);
           }
           
           const query = `
@@ -264,7 +264,7 @@ export function extendPrismaClient(prisma: PrismaClient) {
           
           const result = await prisma.$queryRawUnsafe<any[]>(query, ...values);
           if (result && result.length > 0) {
-            return result[0];
+            return result[0] as any;
           }
           return null;
         },
@@ -277,7 +277,7 @@ export function extendPrismaClient(prisma: PrismaClient) {
           }
           
           let whereClause = '';
-          const values: QueryParamArray = [];
+          const values: QueryParam[] = [];
           if (where && where.paymentTransactionId) {
             whereClause = `WHERE "paymentTransactionId" = $1`;
             values.push(where.paymentTransactionId);
@@ -289,20 +289,20 @@ export function extendPrismaClient(prisma: PrismaClient) {
             ${whereClause}
           `;
           
-          const result = await prisma.$queryRawUnsafe<[{result: string}]>(query, ...values);
+          const result = await prisma.$queryRawUnsafe<Array<{result: string}>>(query, ...values);
           
           // Expected format for aggregate result
-          if (result && result.length > 0) {
+          if (result && result.length > 0 && result[0]) {
             if (_sum && _sum.amount) {
               return {
                 _sum: {
-                  amount: Number(result[0].result) || 0
+                  amount: Number(result[0]?.result || 0)
                 }
               };
             }
             
             return {
-              _count: Number(result[0].result)
+              _count: Number(result[0]?.result || 0)
             };
           }
           

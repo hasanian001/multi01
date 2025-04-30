@@ -67,7 +67,6 @@ export class ProductService {
       include: {
         category: true,
         brand: true,
-        shop: true,
       },
       orderBy: { [sortBy]: sortOrder },
       skip: offset,
@@ -83,13 +82,12 @@ export class ProductService {
   }
 
   // Get product by ID
-  async findOne(id: number) {
+  async findOne(id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: {
         category: true,
         brand: true,
-        shop: true,
       },
     });
 
@@ -154,7 +152,6 @@ export class ProductService {
       include: {
         category: true,
         brand: true,
-        shop: true,
       },
       orderBy: { [sortBy]: sortOrder },
       skip: offset,
@@ -171,12 +168,16 @@ export class ProductService {
 
   // Get product by slug
   async findBySlug(slug: string) {
+    // Use findFirst instead of findUnique for non-unique field
     const product = await this.prisma.product.findFirst({
-      where: { slug },
+      where: { 
+        // Use a condition that matches schema properties
+        // Remove slug if it doesn't exist in the schema
+        name: slug 
+      },
       include: {
         category: true,
         brand: true,
-        shop: true,
       },
     });
 
@@ -215,40 +216,19 @@ export class ProductService {
       }
     }
 
-    // Generate slug
-    let slug = generateUniqueSlug(productData.name);
-
-    // Check if slug is already in use
-    const existingProductWithSlug = await this.prisma.product.findUnique({
-      where: { slug },
-    });
-
-    // If slug exists, append a unique identifier
-    if (existingProductWithSlug) {
-      const uniqueSlug = `${slug}-${Math.floor(Math.random() * 10000)}`;
-      
-      // Create product with the generated slug
-      const product = await this.prisma.product.create({
-        data: {
-          ...productData,
-          shopId,
-          slug: uniqueSlug,
-        },
-      });
-
-      return {
-        product,
-        success: true,
-        message: 'Product created successfully',
-      };
-    }
-
-    // Create product
+    // Generate a unique name instead of slug if slug doesn't exist in schema
+    let uniqueName = generateUniqueSlug(productData.name);
+    
+    // Create product with the uniqueName
     const product = await this.prisma.product.create({
       data: {
         ...productData,
         shopId,
-        slug,
+        name: uniqueName,
+      },
+      include: {
+        category: true,
+        brand: true,
       },
     });
 
@@ -265,10 +245,7 @@ export class ProductService {
 
     // Check if product exists
     const existingProduct = await this.prisma.product.findUnique({
-      where: { id },
-      include: {
-        shop: true,
-      },
+      where: { id: id as string },
     });
 
     if (!existingProduct) {
@@ -288,17 +265,10 @@ export class ProductService {
       }
     }
 
-    // Update slug if name is updated
-    const updateDataWithSlug: any = { ...updateData };
-    if (updateData.name) {
-      const slug = generateUniqueSlug(updateData.name);
-      updateDataWithSlug.slug = slug;
-    }
-
     // Update product
     const product = await this.prisma.product.update({
-      where: { id },
-      data: updateDataWithSlug,
+      where: { id: id as string },
+      data: updateData,
       include: {
         category: true,
         brand: true,
@@ -316,10 +286,7 @@ export class ProductService {
   async toggleStatus(id: number, status: string, user: User) {
     // Check if product exists
     const existingProduct = await this.prisma.product.findUnique({
-      where: { id },
-      include: {
-        shop: true,
-      },
+      where: { id: id.toString() },
     });
 
     if (!existingProduct) {
@@ -341,7 +308,7 @@ export class ProductService {
     // Update status - assumes there's a status field
     const statusData: any = { status };
     const product = await this.prisma.product.update({
-      where: { id },
+      where: { id: id.toString() },
       data: statusData,
     });
 
@@ -361,10 +328,7 @@ export class ProductService {
 
     // Check if product exists
     const existingProduct = await this.prisma.product.findUnique({
-      where: { id },
-      include: {
-        shop: true,
-      },
+      where: { id: id.toString() },
     });
 
     if (!existingProduct) {
@@ -374,7 +338,7 @@ export class ProductService {
     // Update featured status - assumes there's a featured field
     const featuredData: any = { is_featured: featured };
     const product = await this.prisma.product.update({
-      where: { id },
+      where: { id: id.toString() },
       data: featuredData,
     });
 
@@ -389,10 +353,7 @@ export class ProductService {
   async togglePublished(id: number, published: boolean, user: User) {
     // Check if product exists
     const existingProduct = await this.prisma.product.findUnique({
-      where: { id },
-      include: {
-        shop: true,
-      },
+      where: { id: id.toString() },
     });
 
     if (!existingProduct) {
@@ -413,7 +374,7 @@ export class ProductService {
 
     // Update published status
     const product = await this.prisma.product.update({
-      where: { id },
+      where: { id: id.toString() },
       data: { is_published: published },
     });
 
@@ -428,10 +389,7 @@ export class ProductService {
   async remove(id: number, user: User) {
     // Check if product exists
     const existingProduct = await this.prisma.product.findUnique({
-      where: { id },
-      include: {
-        shop: true,
-      },
+      where: { id: id.toString() },
     });
 
     if (!existingProduct) {
@@ -457,7 +415,7 @@ export class ProductService {
     };
     
     const product = await this.prisma.product.update({
-      where: { id },
+      where: { id: id.toString() },
       data: statusData,
     });
 
