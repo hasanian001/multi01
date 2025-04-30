@@ -1,74 +1,52 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { AddToWishlistInput, RemoveFromWishlistInput, WishlistFilterInput } from './dto/wishlist.dto';
+import { CreateWishlistInput, RemoveWishlistInput, WishlistFilterInput } from './dto/wishlist.dto';
 import { User } from '@prisma/client';
 
 @Injectable()
 export class WishlistService {
   constructor(private prisma: PrismaService) {}
 
-  // Get user's wishlist
-  async findAll(userId: number, filterInput: WishlistFilterInput) {
-    const {
-      limit = 10,
-      offset = 0,
-      sortBy = 'created_at',
-      sortOrder = 'desc',
-    } = filterInput || {};
-
-    // Check if user exists
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
-    }
-
+  // Get all wishlist items for a user
+  async findAllForUser(userId: number, filterInput?: WishlistFilterInput) {
+    const { limit = 10, offset = 0 } = filterInput || {};
+    
     // Get total count for pagination
-    const count = await this.prisma.wishlistItem.count({
+    const count = await this.prisma.wishlist.count({
       where: { userId },
     });
 
-    // Get wishlist items
-    const items = await this.prisma.wishlistItem.findMany({
-      where: { userId },
+    // Get wishlist items with product details
+    const wishlists = await this.prisma.wishlist.findMany({
+      where: {
+        userId,
+      },
       include: {
         product: {
-          select: {
-            id: true,
-            name: true,
-            price: true,
-            sale_price: true,
-            images: true,
-            stock: true,
-            rating: true,
-            totalReviews: true,
-            shop: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
+          include: {
+            shop: true,
+            category: true,
           },
         },
       },
+      orderBy: {
+        created_at: 'desc', // Newest first
+      },
       skip: offset,
       take: limit,
-      orderBy: { [sortBy]: sortOrder },
     });
 
     return {
-      items,
+      wishlists,
       count,
       success: true,
       message: 'Wishlist items fetched successfully',
     };
   }
 
-  // Add product to wishlist
-  async addToWishlist(addToWishlistInput: AddToWishlistInput, user: User) {
-    const { productId } = addToWishlistInput;
+  // Add to wishlist
+  async addToWishlist(createWishlistInput: CreateWishlistInput, user: User) {
+    const { productId } = createWishlistInput;
 
     // Check if product exists
     const product = await this.prisma.product.findUnique({
@@ -79,74 +57,59 @@ export class WishlistService {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    // Check if product is already in wishlist
-    const existingItem = await this.prisma.wishlistItem.findFirst({
+    // Check if item is already in wishlist
+    const existingWishlistItem = await this.prisma.wishlist.findUnique({
       where: {
-        userId: user.id,
-        productId,
+        userId_productId: {
+          userId: user.id,
+          productId,
+        },
       },
     });
 
-    if (existingItem) {
-      throw new ConflictException('Product is already in your wishlist');
+    if (existingWishlistItem) {
+      throw new BadRequestException('Product is already in your wishlist');
     }
 
-    // Add product to wishlist
-    const wishlistItem = await this.prisma.wishlistItem.create({
+    // Add to wishlist
+    const wishlist = await this.prisma.wishlist.create({
       data: {
         userId: user.id,
         productId,
       },
       include: {
-        product: {
-          select: {
-            id: true,
-            name: true,
-            price: true,
-            sale_price: true,
-            images: true,
-            stock: true,
-            rating: true,
-            totalReviews: true,
-            shop: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        },
+        product: true,
       },
     });
 
     return {
-      item: wishlistItem,
+      wishlist,
       success: true,
       message: 'Product added to wishlist successfully',
     };
   }
 
-  // Remove product from wishlist
-  async removeFromWishlist(removeFromWishlistInput: RemoveFromWishlistInput, user: User) {
-    const { wishlistItemId } = removeFromWishlistInput;
+  // Remove from wishlist
+  async removeFromWishlist(removeWishlistInput: RemoveWishlistInput, user: User) {
+    const { id } = removeWishlistInput;
 
     // Check if wishlist item exists
-    const wishlistItem = await this.prisma.wishlistItem.findUnique({
-      where: { id: wishlistItemId },
+    const wishlistItem = await this.prisma.wishlist.findUnique({
+      where: { id },
     });
 
     if (!wishlistItem) {
-      throw new NotFoundException(`Wishlist item with ID ${wishlistItemId} not found`);
+      throw new NotFoundException(`Wishlist item with ID ${id} not found`);
     }
 
-    // Check if user owns the wishlist item
+    // Check if wishlist item belongs to the user
     if (wishlistItem.userId !== user.id) {
-      throw new BadRequestException('You can only remove items from your own wishlist');
+      throw new BadRequestException('You are not authorized to remove this item');
     }
 
-    // Remove product from wishlist
-    await this.prisma.wishlistItem.delete({
-      where: { id: wishlistItemId },
+    // Remove from wishlist
+    await this.prisma.wishlist.delete({
+      where: { id },
     });
 
     return {
@@ -155,40 +118,46 @@ export class WishlistService {
     };
   }
 
-  // Check if product is in user's wishlist
-  async isInWishlist(userId: number, productId: number) {
-    const wishlistItem = await this.prisma.wishlistItem.findFirst({
+  // Remove product from wishlist (by productId)
+  async removeProductFromWishlist(productId: number, userId: number) {
+    // Check if product exists in wishlist
+    const wishlistItem = await this.prisma.wishlist.findUnique({
       where: {
-        userId,
-        productId,
+        userId_productId: {
+          userId,
+          productId,
+        },
+      },
+    });
+
+    if (!wishlistItem) {
+      throw new NotFoundException(`Product with ID ${productId} not found in wishlist`);
+    }
+
+    // Remove from wishlist
+    await this.prisma.wishlist.delete({
+      where: {
+        userId_productId: {
+          userId,
+          productId,
+        },
       },
     });
 
     return {
-      inWishlist: !!wishlistItem,
-      wishlistItemId: wishlistItem?.id || null,
+      success: true,
+      message: 'Product removed from wishlist successfully',
     };
   }
 
-  // Clear wishlist (remove all items)
+  // Clear wishlist
   async clearWishlist(userId: number) {
-    // Check if user exists
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
-    }
-
-    // Delete all wishlist items
-    await this.prisma.wishlistItem.deleteMany({
+    // Delete all wishlist items for user
+    await this.prisma.wishlist.deleteMany({
       where: { userId },
     });
 
     return {
-      items: [],
-      count: 0,
       success: true,
       message: 'Wishlist cleared successfully',
     };

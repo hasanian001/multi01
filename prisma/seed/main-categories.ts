@@ -1,0 +1,58 @@
+export const seedMainCategories = [
+  {
+    name: 'Electronics',
+    slug: 'electronics',
+    icon: 'electronics-icon.svg',
+    image: 'electronics-main.jpg',
+    is_featured: true,
+  },
+  {
+    name: 'Fashion',
+    slug: 'fashion',
+    icon: 'fashion-icon.svg',
+    image: 'fashion-main.jpg',
+    is_featured: true,
+  },
+  {
+    name: 'Home & Garden',
+    slug: 'home-garden',
+    icon: 'home-garden-icon.svg',
+    image: 'home-garden-main.jpg',
+    is_featured: true,
+  },
+  {
+    name: 'Beauty & Health',
+    slug: 'beauty-health',
+    icon: 'beauty-health-icon.svg',
+    image: 'beauty-health-main.jpg',
+    is_featured: true,
+  },
+  {
+    name: 'Sports & Outdoors',
+    slug: 'sports-outdoors',
+    icon: 'sports-outdoors-icon.svg',
+    image: 'sports-outdoors-main.jpg',
+    is_featured: true,
+  },
+  {
+    name: 'Toys & Kids',
+    slug: 'toys-kids',
+    icon: 'toys-kids-icon.svg',
+    image: 'toys-kids-main.jpg',
+    is_featured: false,
+  },
+  {
+    name: 'Books & Media',
+    slug: 'books-media',
+    icon: 'books-media-icon.svg',
+    image: 'books-media-main.jpg',
+    is_featured: false,
+  },
+  {
+    name: 'Automotive',
+    slug: 'automotive',
+    icon: 'automotive-icon.svg',
+    image: 'automotive-main.jpg',
+    is_featured: false,
+  },
+];

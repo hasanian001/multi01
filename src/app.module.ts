@@ -16,6 +16,8 @@ import { WishlistModule } from './wishlist/wishlist.module';
 import { CouponModule } from './coupon/coupon.module';
 import { PaymentModule } from './payment/payment.module';
 import { AddressModule } from './address/address.module';
+import { NotificationModule } from './notification/notification.module';
+import { CommonModule } from './common/common.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 
@@ -32,6 +34,7 @@ import { AuthGuard } from './auth/auth.guard';
       context: ({ req, res }) => ({ req, res }),
     }),
     PrismaModule,
+    CommonModule,
     UserModule,
     ShopModule,
     ProductModule,
@@ -44,6 +47,7 @@ import { AuthGuard } from './auth/auth.guard';
     CouponModule,
     PaymentModule,
     AddressModule,
+    NotificationModule,
     // Add other modules here as we develop them
   ],
   controllers: [],

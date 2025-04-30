@@ -1,23 +1,25 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { User } from '../../user/entities/user.entity';
-import { Product } from '../../product/entities/product.entity';
 
 @ObjectType()
-export class Wishlist {
+export class Notification {
   @Field(() => ID)
   id: number;
 
   @Field(() => ID)
   userId: number;
 
-  @Field(() => ID)
-  productId: number;
-
   @Field(() => User, { nullable: true })
   user?: User;
 
-  @Field(() => Product, { nullable: true })
-  product?: Product;
+  @Field()
+  title: string;
+
+  @Field()
+  message: string;
+
+  @Field()
+  is_read: boolean;
 
   @Field()
   created_at: Date;
@@ -27,9 +29,9 @@ export class Wishlist {
 }
 
 @ObjectType()
-export class WishlistResponse {
-  @Field(() => Wishlist, { nullable: true })
-  wishlist?: Wishlist;
+export class NotificationResponse {
+  @Field(() => Notification, { nullable: true })
+  notification?: Notification;
 
   @Field()
   success: boolean;
@@ -39,9 +41,9 @@ export class WishlistResponse {
 }
 
 @ObjectType()
-export class WishlistsResponse {
-  @Field(() => [Wishlist])
-  wishlists: Wishlist[];
+export class NotificationsResponse {
+  @Field(() => [Notification])
+  notifications: Notification[];
 
   @Field()
   count: number;

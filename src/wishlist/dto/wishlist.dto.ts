@@ -1,8 +1,8 @@
 import { InputType, Field, ID, Int } from '@nestjs/graphql';
-import { IsInt, IsPositive, IsOptional } from 'class-validator';
+import { IsInt, IsOptional, IsPositive, Min } from 'class-validator';
 
 @InputType()
-export class AddToWishlistInput {
+export class CreateWishlistInput {
   @Field(() => ID)
   @IsInt()
   @IsPositive()
@@ -10,11 +10,11 @@ export class AddToWishlistInput {
 }
 
 @InputType()
-export class RemoveFromWishlistInput {
+export class RemoveWishlistInput {
   @Field(() => ID)
   @IsInt()
   @IsPositive()
-  wishlistItemId: number;
+  id: number;
 }
 
 @InputType()
@@ -22,19 +22,12 @@ export class WishlistFilterInput {
   @Field(() => Int, { nullable: true })
   @IsOptional()
   @IsInt()
-  @IsPositive()
+  @Min(1)
   limit?: number;
-
+  
   @Field(() => Int, { nullable: true })
   @IsOptional()
   @IsInt()
+  @Min(0)
   offset?: number;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  sortBy?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  sortOrder?: 'asc' | 'desc';
 }

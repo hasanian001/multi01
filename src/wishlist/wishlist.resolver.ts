@@ -1,55 +1,56 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { WishlistService } from './wishlist.service';
-import { WishlistItem, WishlistResponse, WishlistItemResponse } from './entities/wishlist.entity';
-import { AddToWishlistInput, RemoveFromWishlistInput, WishlistFilterInput } from './dto/wishlist.dto';
 import { UseGuards } from '@nestjs/common';
+import { WishlistService } from './wishlist.service';
+import { Wishlist, WishlistResponse, WishlistsResponse } from './entities/wishlist.entity';
+import { CreateWishlistInput, RemoveWishlistInput, WishlistFilterInput } from './dto/wishlist.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
-@Resolver(() => WishlistItem)
+@Resolver(() => Wishlist)
 export class WishlistResolver {
   constructor(private readonly wishlistService: WishlistService) {}
 
-  @Query(() => WishlistResponse)
+  @Query(() => WishlistsResponse)
   @UseGuards(AuthGuard)
   async myWishlist(
     @CurrentUser() user,
     @Args('filterInput', { nullable: true }) filterInput?: WishlistFilterInput,
-  ): Promise<WishlistResponse> {
-    return this.wishlistService.findAll(user.id, filterInput || {});
+  ): Promise<WishlistsResponse> {
+    return this.wishlistService.findAllForUser(user.id, filterInput);
   }
 
-  @Mutation(() => WishlistItemResponse)
+  @Mutation(() => WishlistResponse)
   @UseGuards(AuthGuard)
   async addToWishlist(
-    @Args('addToWishlistInput') addToWishlistInput: AddToWishlistInput,
+    @Args('createWishlistInput') createWishlistInput: CreateWishlistInput,
     @CurrentUser() user,
-  ): Promise<WishlistItemResponse> {
-    return this.wishlistService.addToWishlist(addToWishlistInput, user);
+  ): Promise<WishlistResponse> {
+    return this.wishlistService.addToWishlist(createWishlistInput, user);
   }
 
   @Mutation(() => WishlistResponse)
   @UseGuards(AuthGuard)
   async removeFromWishlist(
-    @Args('removeFromWishlistInput') removeFromWishlistInput: RemoveFromWishlistInput,
+    @Args('removeWishlistInput') removeWishlistInput: RemoveWishlistInput,
     @CurrentUser() user,
   ): Promise<WishlistResponse> {
-    return this.wishlistService.removeFromWishlist(removeFromWishlistInput, user);
+    return this.wishlistService.removeFromWishlist(removeWishlistInput, user);
   }
 
   @Mutation(() => WishlistResponse)
   @UseGuards(AuthGuard)
-  async clearWishlist(@CurrentUser() user): Promise<WishlistResponse> {
-    return this.wishlistService.clearWishlist(user.id);
+  async removeProductFromWishlist(
+    @Args('productId', { type: () => Int }) productId: number,
+    @CurrentUser() user,
+  ): Promise<WishlistResponse> {
+    return this.wishlistService.removeProductFromWishlist(productId, user.id);
   }
 
-  @Query(() => Boolean)
+  @Mutation(() => WishlistResponse)
   @UseGuards(AuthGuard)
-  async isInWishlist(
+  async clearWishlist(
     @CurrentUser() user,
-    @Args('productId', { type: () => Int }) productId: number,
-  ): Promise<boolean> {
-    const result = await this.wishlistService.isInWishlist(user.id, productId);
-    return result.inWishlist;
+  ): Promise<WishlistResponse> {
+    return this.wishlistService.clearWishlist(user.id);
   }
 }

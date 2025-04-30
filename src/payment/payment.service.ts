@@ -1,516 +1,595 @@
-import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../prisma/prisma.service';
 import { 
-  InitiatePaymentInput, 
-  CompletePaymentInput, 
-  RefundPaymentInput, 
-  PaymentStatusInput, 
-  PaymentFilterInput 
-} from './dto/payment.dto';
-import { PaymentProvider, PaymentTransactionStatus } from './entities/payment.entity';
-import { User } from '@prisma/client';
+  PaymentProvider, 
+  PaymentTransaction, 
+  PaymentTransactionStatus, 
+  PaymentRefund,
+  Prisma
+} from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import { PaymentProviderFactory } from './payment-provider.factory';
+import { PaymentFilterInput } from './dto/payment-filter.input';
+import { InitiatePaymentInput } from './dto/initiate-payment.input';
+import { CompletePaymentInput } from './dto/complete-payment.input';
+import { RefundPaymentInput } from './dto/refund-payment.input';
+import { PaymentStatusInput } from './dto/payment-status.input';
 import { v4 as uuidv4 } from 'uuid';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class PaymentService {
+  private readonly logger = new Logger(PaymentService.name);
+
   constructor(
     private prisma: PrismaService,
     private configService: ConfigService,
+    private paymentProviderFactory: PaymentProviderFactory,
   ) {}
 
-  // Get all payments with filtering options
   async findAll(filterInput: PaymentFilterInput) {
-    const {
-      userId,
-      orderId,
-      transactionId,
+    const { 
+      page = 1, 
+      limit = 10, 
+      status, 
       provider,
-      status,
+      orderId,
       startDate,
       endDate,
-      limit = 10,
-      offset = 0,
-      sortBy = 'created_at',
-      sortOrder = 'desc',
-    } = filterInput || {};
+      minAmount,
+      maxAmount,
+      search,
+      sortField = 'created_at',
+      sortOrder = 'desc'
+    } = filterInput;
 
-    // Build filter conditions
-    const where: any = {
-      ...(userId && { userId }),
-      ...(orderId && { orderId }),
-      ...(transactionId && { transactionId }),
-      ...(provider && { provider }),
-      ...(status && { status }),
-    };
-
-    // Add date range filter
+    const skip = (page - 1) * limit;
+    
+    // Build the where conditions
+    const where: Prisma.PaymentTransactionWhereInput = {};
+    
+    if (status) {
+      where.status = status;
+    }
+    
+    if (provider) {
+      where.provider = provider;
+    }
+    
+    if (orderId) {
+      where.orderId = orderId;
+    }
+    
     if (startDate || endDate) {
-      where.created_at = {
-        ...(startDate && { gte: new Date(startDate) }),
-        ...(endDate && { lte: new Date(endDate) }),
-      };
+      where.created_at = {};
+      if (startDate) {
+        where.created_at.gte = new Date(startDate);
+      }
+      if (endDate) {
+        where.created_at.lte = new Date(endDate);
+      }
+    }
+    
+    if (minAmount || maxAmount) {
+      where.amount = {};
+      if (minAmount) {
+        where.amount.gte = minAmount;
+      }
+      if (maxAmount) {
+        where.amount.lte = maxAmount;
+      }
+    }
+    
+    if (search) {
+      where.OR = [
+        { transactionId: { contains: search, mode: 'insensitive' } },
+        { paymentIntent: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
     }
 
-    // Get total count for pagination
-    const count = await this.prisma.paymentTransaction.count({ where });
+    // Build sort order
+    const orderBy: Prisma.PaymentTransactionOrderByWithRelationInput = {};
+    orderBy[sortField as keyof Prisma.PaymentTransactionOrderByWithRelationInput] = sortOrder;
 
-    // Get payments with applied filters
+    // Get total count for pagination
+    const total = await this.prisma.paymentTransaction.count({ where });
+    
+    // Get payments with pagination
     const payments = await this.prisma.paymentTransaction.findMany({
       where,
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        order: {
-          select: {
-            id: true,
-            orderNumber: true,
-            total: true,
-            status: true,
-          },
-        },
-      },
-      skip: offset,
+      orderBy,
+      skip,
       take: limit,
-      orderBy: { [sortBy]: sortOrder },
+      include: {
+        order: true,
+        refunds: true,
+      },
     });
 
     return {
-      payments,
-      count,
-      success: true,
-      message: 'Payments fetched successfully',
+      data: payments,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      },
     };
   }
 
-  // Get payment by ID
   async findOne(id: number) {
     const payment = await this.prisma.paymentTransaction.findUnique({
       where: { id },
       include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        order: {
-          select: {
-            id: true,
-            orderNumber: true,
-            total: true,
-            status: true,
-          },
-        },
+        order: true,
+        refunds: true,
       },
     });
 
     if (!payment) {
-      throw new NotFoundException(`Payment with ID ${id} not found`);
+      throw new Error(`Payment transaction with ID ${id} not found`);
     }
 
-    return {
-      payment,
-      success: true,
-      message: 'Payment fetched successfully',
-    };
+    return payment;
   }
 
-  // Get payment by transaction ID
   async findByTransactionId(transactionId: string) {
-    const payment = await this.prisma.paymentTransaction.findFirst({
+    const payment = await this.prisma.paymentTransaction.findUnique({
       where: { transactionId },
       include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        order: {
-          select: {
-            id: true,
-            orderNumber: true,
-            total: true,
-            status: true,
-          },
-        },
+        order: true,
+        refunds: true,
       },
     });
 
     if (!payment) {
-      throw new NotFoundException(`Payment with transaction ID ${transactionId} not found`);
+      throw new Error(`Payment transaction with ID ${transactionId} not found`);
     }
 
-    return {
-      payment,
-      success: true,
-      message: 'Payment fetched successfully',
-    };
+    return payment;
   }
 
-  // Initiate a payment
   async initiatePayment(initiatePaymentInput: InitiatePaymentInput, user: User) {
-    const { orderId, provider, returnUrl, cancelUrl, paymentMethod, metadata } = initiatePaymentInput;
+    const { 
+      orderId, 
+      amount, 
+      currency = 'USD', 
+      provider, 
+      description,
+      metadata = {},
+      returnUrl,
+      cancelUrl,
+    } = initiatePaymentInput;
 
-    // Check if order exists
-    const order = await this.prisma.order.findUnique({
-      where: { id: orderId },
-    });
+    this.logger.log(`Initiating payment for order ${orderId} with provider ${provider}`);
 
-    if (!order) {
-      throw new NotFoundException(`Order with ID ${orderId} not found`);
-    }
-
-    // Check if order belongs to the user
-    if (order.userId !== user.id) {
-      throw new BadRequestException('You can only make payments for your own orders');
-    }
-
-    // Check if order is already paid
-    if (order.paymentStatus === 'PAID') {
-      throw new BadRequestException('This order is already paid');
-    }
-
-    // Generate a unique transaction ID
-    const transactionId = `TXNID-${uuidv4().substring(0, 8).toUpperCase()}`;
-
-    // Create a new payment transaction
-    const payment = await this.prisma.paymentTransaction.create({
+    // Create a payment transaction in the database
+    const transactionId = uuidv4();
+    
+    const paymentTransaction = await this.prisma.paymentTransaction.create({
       data: {
-        userId: user.id,
-        orderId,
         transactionId,
+        orderId,
+        amount,
+        currency,
         provider,
-        amount: order.total,
         status: PaymentTransactionStatus.PENDING,
-        paymentMethod: paymentMethod || null,
-        currency: 'USD', // Default currency
-        metadata: metadata || {},
-      },
-      include: {
-        order: {
-          select: {
-            id: true,
-            orderNumber: true,
-            total: true,
-            status: true,
-          },
-        },
+        description,
+        metadata,
+        userId: user.id,
       },
     });
 
-    // Process payment based on the selected provider
-    let redirectUrl = null;
-    let clientSecret = null;
-
+    // Use the appropriate payment provider to create a payment intent
     try {
+      const paymentProvider = this.paymentProviderFactory.getProvider(provider);
+      
+      // Add user information to metadata
+      const extendedMetadata = {
+        ...metadata,
+        userId: user.id,
+        userEmail: user.email,
+        userName: user.name,
+      };
+
+      let paymentResult;
+      
       switch (provider) {
         case PaymentProvider.STRIPE:
-          const result = await this.processStripePayment(payment, returnUrl);
-          clientSecret = result.clientSecret;
+          paymentResult = await this.processStripePayment(
+            paymentTransaction, 
+            returnUrl
+          );
           break;
-
+          
         case PaymentProvider.PAYPAL:
-          redirectUrl = await this.processPayPalPayment(payment, returnUrl, cancelUrl);
+          paymentResult = await this.processPayPalPayment(
+            paymentTransaction, 
+            returnUrl, 
+            cancelUrl
+          );
           break;
-
+          
         case PaymentProvider.SSLCOMMERZ:
-          redirectUrl = await this.processSSLCommerzPayment(payment, returnUrl, cancelUrl);
+          paymentResult = await this.processSSLCommerzPayment(
+            paymentTransaction, 
+            returnUrl, 
+            cancelUrl
+          );
           break;
-
-        case PaymentProvider.BANK_TRANSFER:
-          // For bank transfer, we just create the payment record
-          // and wait for manual verification
-          break;
-
-        case PaymentProvider.CASH_ON_DELIVERY:
-          // For COD, we mark the payment as pending and update it upon delivery
-          break;
-
+          
         default:
-          throw new BadRequestException(`Payment provider ${provider} is not supported`);
+          paymentResult = await paymentProvider.createPaymentIntent(
+            amount,
+            currency,
+            paymentTransaction,
+            extendedMetadata,
+            returnUrl,
+            cancelUrl,
+          );
+      }
+
+      // Update the payment transaction with the payment intent ID
+      if (paymentResult.success) {
+        await this.prisma.paymentTransaction.update({
+          where: { id: paymentTransaction.id },
+          data: {
+            paymentIntent: paymentResult.paymentIntent,
+            clientSecret: paymentResult.clientSecret,
+            redirectUrl: paymentResult.redirectUrl,
+          },
+        });
+      } else {
+        // Mark the payment as failed
+        await this.prisma.paymentTransaction.update({
+          where: { id: paymentTransaction.id },
+          data: {
+            status: PaymentTransactionStatus.FAILED,
+            errorMessage: paymentResult.message,
+          },
+        });
       }
 
       return {
-        payment,
-        redirectUrl,
-        clientSecret,
-        success: true,
-        message: 'Payment initiated successfully',
+        ...paymentTransaction,
+        paymentIntent: paymentResult.paymentIntent,
+        clientSecret: paymentResult.clientSecret,
+        redirectUrl: paymentResult.redirectUrl,
+        success: paymentResult.success,
+        message: paymentResult.message,
       };
     } catch (error) {
-      // Update payment status to FAILED if there was an error
+      this.logger.error(`Error initiating payment: ${error.message}`, error.stack);
+      
+      // Update the payment record with error information
       await this.prisma.paymentTransaction.update({
-        where: { id: payment.id },
+        where: { id: paymentTransaction.id },
         data: {
           status: PaymentTransactionStatus.FAILED,
-          metadata: {
-            ...payment.metadata,
-            error: error.message,
-          },
+          errorMessage: error.message,
         },
       });
 
-      throw new InternalServerErrorException(`Failed to initiate payment: ${error.message}`);
+      throw new Error(`Failed to initiate payment: ${error.message}`);
     }
   }
 
-  // Complete a payment (callback from payment gateway)
   async completePayment(completePaymentInput: CompletePaymentInput) {
-    const { paymentId, transactionId, status, metadata } = completePaymentInput;
+    const { transactionId, paymentIntent, paymentMethod, paymentStatus, metadata = {} } = completePaymentInput;
 
-    // Find payment transaction
-    const payment = await this.prisma.paymentTransaction.findUnique({
-      where: { id: paymentId },
-      include: {
-        order: true,
-      },
-    });
-
-    if (!payment) {
-      throw new NotFoundException(`Payment with ID ${paymentId} not found`);
-    }
-
-    if (payment.transactionId !== transactionId) {
-      throw new BadRequestException('Transaction ID mismatch');
-    }
-
-    // Update payment status
-    const updatedPayment = await this.prisma.paymentTransaction.update({
-      where: { id: paymentId },
-      data: {
-        status,
-        metadata: {
-          ...payment.metadata,
-          ...metadata,
-        },
-      },
-      include: {
-        order: {
-          select: {
-            id: true,
-            orderNumber: true,
-            total: true,
-            status: true,
-          },
-        },
-      },
-    });
-
-    // Update order payment status if payment was successful
-    if (status === PaymentTransactionStatus.SUCCESS) {
-      await this.prisma.order.update({
-        where: { id: payment.orderId },
-        data: {
-          paymentStatus: 'PAID',
-        },
-      });
-    } else if (status === PaymentTransactionStatus.FAILED) {
-      await this.prisma.order.update({
-        where: { id: payment.orderId },
-        data: {
-          paymentStatus: 'FAILED',
-        },
-      });
-    }
-
-    return {
-      payment: updatedPayment,
-      success: true,
-      message: `Payment ${status.toLowerCase()} successfully`,
-    };
-  }
-
-  // Process refund
-  async refundPayment(refundPaymentInput: RefundPaymentInput, user: User) {
-    const { paymentId, amount, reason } = refundPaymentInput;
-
-    // Find payment transaction
-    const payment = await this.prisma.paymentTransaction.findUnique({
-      where: { id: paymentId },
-      include: {
-        order: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
-    });
-
-    if (!payment) {
-      throw new NotFoundException(`Payment with ID ${paymentId} not found`);
-    }
-
-    // Check if payment is already refunded
-    if (payment.status === PaymentTransactionStatus.REFUNDED) {
-      throw new BadRequestException('This payment is already refunded');
-    }
-
-    // Check if payment was successful
-    if (payment.status !== PaymentTransactionStatus.SUCCESS) {
-      throw new BadRequestException('Only successful payments can be refunded');
-    }
-
-    // Check if user is admin or the payment belongs to this user
-    if (user.role !== 'ADMIN' && payment.userId !== user.id) {
-      throw new BadRequestException('You are not authorized to refund this payment');
-    }
-
-    const refundAmount = amount || payment.amount;
-    const refundId = `REFUND-${uuidv4().substring(0, 8).toUpperCase()}`;
+    this.logger.log(`Completing payment for transaction ${transactionId}`);
 
     try {
-      // Process refund based on payment provider
-      switch (payment.provider) {
-        case PaymentProvider.STRIPE:
-          await this.processStripeRefund(payment, refundAmount, refundId);
-          break;
+      // Get the payment transaction
+      const paymentTransaction = await this.prisma.paymentTransaction.findUnique({
+        where: { transactionId },
+      });
 
-        case PaymentProvider.PAYPAL:
-          await this.processPayPalRefund(payment, refundAmount, refundId);
-          break;
-
-        case PaymentProvider.SSLCOMMERZ:
-          await this.processSSLCommerzRefund(payment, refundAmount, refundId);
-          break;
-
-        case PaymentProvider.BANK_TRANSFER:
-        case PaymentProvider.CASH_ON_DELIVERY:
-          // For manual payment methods, we just update the records
-          break;
-
-        default:
-          throw new BadRequestException(`Refund for provider ${payment.provider} is not supported`);
+      if (!paymentTransaction) {
+        throw new Error(`Payment transaction ${transactionId} not found`);
       }
 
-      // Update payment status
+      // Determine the new status
+      let newStatus = paymentTransaction.status;
+      if (paymentStatus === 'success') {
+        newStatus = PaymentTransactionStatus.SUCCESS;
+      } else if (paymentStatus === 'failed') {
+        newStatus = PaymentTransactionStatus.FAILED;
+      } else if (paymentStatus === 'cancelled') {
+        newStatus = PaymentTransactionStatus.CANCELLED;
+      }
+
+      // Update the payment transaction
       const updatedPayment = await this.prisma.paymentTransaction.update({
-        where: { id: paymentId },
+        where: { id: paymentTransaction.id },
         data: {
-          status: PaymentTransactionStatus.REFUNDED,
-          refundId,
+          status: newStatus,
+          paymentMethod: paymentMethod || paymentTransaction.paymentMethod,
+          completedAt: newStatus === PaymentTransactionStatus.SUCCESS ? new Date() : null,
           metadata: {
-            ...payment.metadata,
-            refundAmount,
-            refundReason: reason || 'Customer requested refund',
-            refundDate: new Date(),
+            ...paymentTransaction.metadata,
+            ...metadata,
           },
         },
         include: {
-          order: {
-            select: {
-              id: true,
-              orderNumber: true,
-              total: true,
-              status: true,
-            },
+          order: true,
+        }
+      });
+
+      // Update the order status if payment is successful
+      if (newStatus === PaymentTransactionStatus.SUCCESS && updatedPayment.order) {
+        await this.prisma.order.update({
+          where: { id: updatedPayment.orderId },
+          data: {
+            paymentStatus: 'PAID',
+            // You might also want to update the order status based on your business logic
+            // status: OrderStatus.PROCESSING,
           },
-        },
-      });
+        });
+      }
 
-      // Update order status
-      await this.prisma.order.update({
-        where: { id: payment.orderId },
-        data: {
-          status: 'REFUNDED',
-          paymentStatus: 'REFUNDED',
-        },
-      });
-
-      return {
-        payment: updatedPayment,
-        success: true,
-        message: 'Payment refunded successfully',
-      };
+      return updatedPayment;
     } catch (error) {
-      throw new InternalServerErrorException(`Failed to process refund: ${error.message}`);
+      this.logger.error(`Error completing payment: ${error.message}`, error.stack);
+      throw new Error(`Failed to complete payment: ${error.message}`);
     }
   }
 
-  // Check payment status
+  async refundPayment(refundPaymentInput: RefundPaymentInput, user: User) {
+    const { transactionId, amount, reason } = refundPaymentInput;
+
+    this.logger.log(`Processing refund for transaction ${transactionId}`);
+
+    try {
+      // Get the payment transaction
+      const paymentTransaction = await this.prisma.paymentTransaction.findUnique({
+        where: { transactionId },
+      });
+
+      if (!paymentTransaction) {
+        throw new Error(`Payment transaction ${transactionId} not found`);
+      }
+
+      // Check if payment is eligible for refund
+      if (paymentTransaction.status !== PaymentTransactionStatus.SUCCESS) {
+        throw new Error(`Payment transaction ${transactionId} is not eligible for refund`);
+      }
+
+      // Calculate the total refunded amount so far
+      const refundedSoFar = await this.prisma.paymentRefund.aggregate({
+        where: { paymentTransactionId: paymentTransaction.id },
+        _sum: {
+          amount: true,
+        },
+      });
+
+      const totalRefunded = refundedSoFar._sum.amount || 0;
+      const refundableAmount = paymentTransaction.amount - totalRefunded;
+
+      // Check if the refund amount is valid
+      if (amount > refundableAmount) {
+        throw new Error(`Refund amount exceeds the refundable amount: ${refundableAmount}`);
+      }
+
+      // Generate a unique refund ID
+      const refundId = `ref_${uuidv4()}`;
+
+      // Create the refund record in the database
+      const refund = await this.prisma.paymentRefund.create({
+        data: {
+          refundId,
+          amount,
+          reason,
+          status: PaymentTransactionStatus.PENDING,
+          paymentTransactionId: paymentTransaction.id,
+          createdBy: user.id,
+        },
+      });
+
+      // Process the refund through the payment provider
+      let refundResult;
+      
+      switch (paymentTransaction.provider) {
+        case PaymentProvider.STRIPE:
+          refundResult = await this.processStripeRefund(
+            paymentTransaction, 
+            amount, 
+            refundId
+          );
+          break;
+          
+        case PaymentProvider.PAYPAL:
+          refundResult = await this.processPayPalRefund(
+            paymentTransaction, 
+            amount, 
+            refundId
+          );
+          break;
+          
+        case PaymentProvider.SSLCOMMERZ:
+          refundResult = await this.processSSLCommerzRefund(
+            paymentTransaction, 
+            amount, 
+            refundId
+          );
+          break;
+          
+        default:
+          const paymentProvider = this.paymentProviderFactory.getProvider(paymentTransaction.provider);
+          refundResult = await paymentProvider.refundPayment(
+            paymentTransaction,
+            amount,
+            reason,
+          );
+      }
+
+      // Update the refund record with the result
+      const updatedRefund = await this.prisma.paymentRefund.update({
+        where: { id: refund.id },
+        data: {
+          status: refundResult.success 
+            ? PaymentTransactionStatus.SUCCESS 
+            : PaymentTransactionStatus.FAILED,
+          providerRefundId: refundResult.refundId,
+          errorMessage: refundResult.success ? null : refundResult.message,
+          completedAt: refundResult.success ? new Date() : null,
+        },
+        include: {
+          paymentTransaction: true,
+        },
+      });
+
+      // Update the payment transaction status if it's fully refunded
+      if (refundResult.success) {
+        const updatedTotalRefunded = totalRefunded + amount;
+        
+        if (updatedTotalRefunded >= paymentTransaction.amount) {
+          await this.prisma.paymentTransaction.update({
+            where: { id: paymentTransaction.id },
+            data: {
+              status: PaymentTransactionStatus.REFUNDED,
+            },
+          });
+        } else if (updatedTotalRefunded > 0) {
+          await this.prisma.paymentTransaction.update({
+            where: { id: paymentTransaction.id },
+            data: {
+              status: PaymentTransactionStatus.PARTIALLY_REFUNDED,
+            },
+          });
+        }
+      }
+
+      return updatedRefund;
+    } catch (error) {
+      this.logger.error(`Error processing refund: ${error.message}`, error.stack);
+      throw new Error(`Failed to process refund: ${error.message}`);
+    }
+  }
+
   async checkPaymentStatus(paymentStatusInput: PaymentStatusInput) {
     const { transactionId } = paymentStatusInput;
 
+    this.logger.log(`Checking payment status for transaction ${transactionId}`);
+
     try {
-      const payment = await this.findByTransactionId(transactionId);
+      // Get the payment transaction
+      const paymentTransaction = await this.prisma.paymentTransaction.findUnique({
+        where: { transactionId },
+      });
+
+      if (!paymentTransaction) {
+        throw new Error(`Payment transaction ${transactionId} not found`);
+      }
+
+      // Get the payment provider
+      const paymentProvider = this.paymentProviderFactory.getProvider(paymentTransaction.provider);
+      
+      // Check the payment status with the provider
+      const statusResult = await paymentProvider.retrievePaymentStatus(paymentTransaction);
+
+      // If the status has changed, update the transaction
+      if (statusResult.success && statusResult.status !== paymentTransaction.status) {
+        await this.prisma.paymentTransaction.update({
+          where: { id: paymentTransaction.id },
+          data: {
+            status: statusResult.status,
+            metadata: {
+              ...paymentTransaction.metadata,
+              lastStatusCheck: new Date().toISOString(),
+              providerResponseDetails: statusResult.paymentDetails,
+            },
+          },
+        });
+
+        // If payment is now successful, update the order
+        if (statusResult.status === PaymentTransactionStatus.SUCCESS) {
+          await this.prisma.order.update({
+            where: { id: paymentTransaction.orderId },
+            data: {
+              paymentStatus: 'PAID',
+              // You might also want to update the order status based on your business logic
+              // status: OrderStatus.PROCESSING,
+            },
+          });
+        }
+      }
+
       return {
-        payment: payment.payment,
-        success: true,
-        message: `Payment status: ${payment.payment.status}`,
+        ...paymentTransaction,
+        currentStatus: statusResult.status,
+        success: statusResult.success,
+        message: statusResult.message,
+        details: statusResult.paymentDetails,
       };
     } catch (error) {
-      throw new NotFoundException(`Payment with transaction ID ${transactionId} not found`);
+      this.logger.error(`Error checking payment status: ${error.message}`, error.stack);
+      throw new Error(`Failed to check payment status: ${error.message}`);
     }
   }
 
-  // Process Stripe payment
+  // Provider-specific payment processing methods
   private async processStripePayment(payment, returnUrl) {
-    // In a real implementation, this would use the Stripe API
-    // For now, we'll simulate the process
-    
-    // The client secret would be created using Stripe's API in a real implementation
-    const clientSecret = `stripe_test_${payment.id}_${Date.now()}`;
-    
-    return { clientSecret };
+    const paymentProvider = this.paymentProviderFactory.getProvider(PaymentProvider.STRIPE);
+    return await paymentProvider.createPaymentIntent(
+      payment.amount,
+      payment.currency,
+      payment,
+      payment.metadata,
+      returnUrl,
+    );
   }
 
-  // Process PayPal payment
   private async processPayPalPayment(payment, returnUrl, cancelUrl) {
-    // In a real implementation, this would use the PayPal API
-    // For now, we'll simulate the process
-    
-    // The redirect URL would be obtained from PayPal's API in a real implementation
-    const redirectUrl = `https://paypal.com/checkout?orderId=${payment.orderId}&amount=${payment.amount}&returnUrl=${returnUrl}&cancelUrl=${cancelUrl}`;
-    
-    return redirectUrl;
+    const paymentProvider = this.paymentProviderFactory.getProvider(PaymentProvider.PAYPAL);
+    return await paymentProvider.createPaymentIntent(
+      payment.amount,
+      payment.currency,
+      payment,
+      payment.metadata,
+      returnUrl,
+      cancelUrl,
+    );
   }
 
-  // Process SSLCommerz payment
   private async processSSLCommerzPayment(payment, returnUrl, cancelUrl) {
-    // In a real implementation, this would use the SSLCommerz API
-    // For now, we'll simulate the process
-    
-    // The redirect URL would be obtained from SSLCommerz's API in a real implementation
-    const redirectUrl = `https://sslcommerz.com/pay?tran_id=${payment.transactionId}&amount=${payment.amount}&success_url=${returnUrl}&fail_url=${cancelUrl}`;
-    
-    return redirectUrl;
+    const paymentProvider = this.paymentProviderFactory.getProvider(PaymentProvider.SSLCOMMERZ);
+    return await paymentProvider.createPaymentIntent(
+      payment.amount,
+      payment.currency,
+      payment,
+      payment.metadata,
+      returnUrl,
+      cancelUrl,
+    );
   }
 
-  // Process Stripe refund
+  // Provider-specific refund processing methods
   private async processStripeRefund(payment, amount, refundId) {
-    // In a real implementation, this would use the Stripe API
-    // For now, we'll simulate the process
-    
-    // This would be handled by Stripe's API in a real implementation
-    return true;
+    const paymentProvider = this.paymentProviderFactory.getProvider(PaymentProvider.STRIPE);
+    return await paymentProvider.refundPayment(
+      payment,
+      amount,
+      `Refund for ${refundId}`,
+    );
   }
 
-  // Process PayPal refund
   private async processPayPalRefund(payment, amount, refundId) {
-    // In a real implementation, this would use the PayPal API
-    // For now, we'll simulate the process
-    
-    // This would be handled by PayPal's API in a real implementation
-    return true;
+    const paymentProvider = this.paymentProviderFactory.getProvider(PaymentProvider.PAYPAL);
+    return await paymentProvider.refundPayment(
+      payment,
+      amount,
+      `Refund for ${refundId}`,
+    );
   }
 
-  // Process SSLCommerz refund
   private async processSSLCommerzRefund(payment, amount, refundId) {
-    // In a real implementation, this would use the SSLCommerz API
-    // For now, we'll simulate the process
-    
-    // This would be handled by SSLCommerz's API in a real implementation
-    return true;
+    const paymentProvider = this.paymentProviderFactory.getProvider(PaymentProvider.SSLCOMMERZ);
+    return await paymentProvider.refundPayment(
+      payment,
+      amount,
+      `Refund for ${refundId}`,
+    );
   }
 }

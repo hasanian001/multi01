@@ -456,8 +456,11 @@ model PaymentTransaction {
   currency      String?                 @default("USD")
   billingAddress String?
   paymentIntent String?
-  receiptUrl    String?
-  refundId      String?
+  clientSecret  String?
+  redirectUrl   String?
+  errorMessage  String?
+  description   String?
+  completedAt   DateTime?
   metadata      Json?                   @default("{}")
   created_at    DateTime                @default(now())
   updated_at    DateTime                @updatedAt
@@ -465,6 +468,28 @@ model PaymentTransaction {
   // Relations
   user          User                    @relation(fields: [userId], references: [id])
   order         Order                   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  refunds       PaymentRefund[]
 
   @@map("payment_transactions")
+}
+
+// Payment refund model
+model PaymentRefund {
+  id                  Int                     @id @default(autoincrement())
+  refundId            String                  @unique
+  paymentTransactionId Int
+  amount              Float
+  reason              String?
+  status              PaymentTransactionStatus
+  providerRefundId    String?
+  errorMessage        String?
+  createdBy           Int
+  completedAt         DateTime?
+  created_at          DateTime                @default(now())
+  updated_at          DateTime                @updatedAt
+
+  // Relations
+  paymentTransaction  PaymentTransaction      @relation(fields: [paymentTransactionId], references: [id], onDelete: Cascade)
+
+  @@map("payment_refunds")
 }

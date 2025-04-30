@@ -1,23 +1,24 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { UseGuards } from '@nestjs/common';
 import { PaymentService } from './payment.service';
+import { PaymentTransaction } from './models/payment-transaction.model';
 import { 
-  PaymentTransaction, 
   PaymentResponse, 
   PaymentsResponse, 
-  InitiatePaymentResponse 
-} from './entities/payment.entity';
-import {
-  InitiatePaymentInput,
-  CompletePaymentInput,
-  RefundPaymentInput,
-  PaymentStatusInput,
-  PaymentFilterInput
-} from './dto/payment.dto';
+  InitiatePaymentResponse, 
+  RefundResponse,
+  PaymentStatusResponse
+} from './models/payment-response.model';
+import { PaymentFilterInput } from './dto/payment-filter.input';
+import { InitiatePaymentInput } from './dto/initiate-payment.input';
+import { CompletePaymentInput } from './dto/complete-payment.input';
+import { RefundPaymentInput } from './dto/refund-payment.input';
+import { PaymentStatusInput } from './dto/payment-status.input';
+import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Roles } from '../auth/roles.decorator';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { User } from '@prisma/client';
 
 @Resolver(() => PaymentTransaction)
 export class PaymentResolver {
@@ -25,58 +26,114 @@ export class PaymentResolver {
 
   @Query(() => PaymentsResponse)
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SELLER')
   async payments(
     @Args('filterInput', { nullable: true }) filterInput?: PaymentFilterInput,
   ): Promise<PaymentsResponse> {
-    return this.paymentService.findAll(filterInput || {});
+    try {
+      const paymentsData = await this.paymentService.findAll(filterInput || {});
+      return {
+        ...paymentsData,
+        success: true,
+        message: 'Payments retrieved successfully',
+      };
+    } catch (error) {
+      return {
+        data: [],
+        pagination: {
+          total: 0,
+          page: filterInput?.page || 1,
+          limit: filterInput?.limit || 10,
+          pages: 0,
+        },
+        success: false,
+        message: error.message,
+      };
+    }
   }
 
   @Query(() => PaymentResponse)
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SELLER', 'USER')
   async payment(
     @Args('id', { type: () => Int }) id: number,
-    @CurrentUser() user,
+    @CurrentUser() user: User,
   ): Promise<PaymentResponse> {
-    const result = await this.paymentService.findOne(id);
-    
-    // Only admin or the payment owner can access payment details
-    if (user.role !== 'ADMIN' && result.payment.userId !== user.id) {
+    try {
+      const payment = await this.paymentService.findOne(id);
+      
+      // Check if user is authorized to view this payment
+      if (user.role === 'USER' && payment.userId !== user.id) {
+        throw new Error('You are not authorized to view this payment');
+      }
+      
       return {
+        payment,
+        success: true,
+        message: 'Payment retrieved successfully',
+      };
+    } catch (error) {
+      return {
+        payment: null,
         success: false,
-        message: 'You are not authorized to view this payment',
+        message: error.message,
       };
     }
-    
-    return result;
   }
 
   @Query(() => PaymentResponse)
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SELLER', 'USER')
   async paymentByTransactionId(
-    @Args('transactionId') transactionId: string,
-    @CurrentUser() user,
+    @Args('transactionId', { type: () => String }) transactionId: string,
+    @CurrentUser() user: User,
   ): Promise<PaymentResponse> {
-    const result = await this.paymentService.findByTransactionId(transactionId);
-    
-    // Only admin or the payment owner can access payment details
-    if (user.role !== 'ADMIN' && result.payment.userId !== user.id) {
+    try {
+      const payment = await this.paymentService.findByTransactionId(transactionId);
+      
+      // Check if user is authorized to view this payment
+      if (user.role === 'USER' && payment.userId !== user.id) {
+        throw new Error('You are not authorized to view this payment');
+      }
+      
       return {
+        payment,
+        success: true,
+        message: 'Payment retrieved successfully',
+      };
+    } catch (error) {
+      return {
+        payment: null,
         success: false,
-        message: 'You are not authorized to view this payment',
+        message: error.message,
       };
     }
-    
-    return result;
   }
 
   @Mutation(() => InitiatePaymentResponse)
   @UseGuards(AuthGuard)
   async initiatePayment(
     @Args('initiatePaymentInput') initiatePaymentInput: InitiatePaymentInput,
-    @CurrentUser() user,
+    @CurrentUser() user: User,
   ): Promise<InitiatePaymentResponse> {
-    return this.paymentService.initiatePayment(initiatePaymentInput, user);
+    try {
+      const result = await this.paymentService.initiatePayment(initiatePaymentInput, user);
+      
+      return {
+        payment: result,
+        paymentIntent: result.paymentIntent,
+        clientSecret: result.clientSecret,
+        redirectUrl: result.redirectUrl,
+        success: result.success,
+        message: result.message,
+      };
+    } catch (error) {
+      return {
+        payment: null,
+        success: false,
+        message: error.message,
+      };
+    }
   }
 
   @Mutation(() => PaymentResponse)
@@ -84,23 +141,77 @@ export class PaymentResolver {
   async completePayment(
     @Args('completePaymentInput') completePaymentInput: CompletePaymentInput,
   ): Promise<PaymentResponse> {
-    return this.paymentService.completePayment(completePaymentInput);
+    try {
+      const payment = await this.paymentService.completePayment(completePaymentInput);
+      
+      return {
+        payment,
+        success: true,
+        message: 'Payment completed successfully',
+      };
+    } catch (error) {
+      return {
+        payment: null,
+        success: false,
+        message: error.message,
+      };
+    }
   }
 
-  @Mutation(() => PaymentResponse)
-  @UseGuards(AuthGuard)
+  @Mutation(() => RefundResponse)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SELLER')
   async refundPayment(
     @Args('refundPaymentInput') refundPaymentInput: RefundPaymentInput,
-    @CurrentUser() user,
-  ): Promise<PaymentResponse> {
-    return this.paymentService.refundPayment(refundPaymentInput, user);
+    @CurrentUser() user: User,
+  ): Promise<RefundResponse> {
+    try {
+      const refund = await this.paymentService.refundPayment(refundPaymentInput, user);
+      
+      return {
+        payment: refund.paymentTransaction,
+        refundId: refund.refundId,
+        success: true,
+        message: 'Refund processed successfully',
+      };
+    } catch (error) {
+      return {
+        payment: null,
+        refundId: null,
+        success: false,
+        message: error.message,
+      };
+    }
   }
 
-  @Query(() => PaymentResponse)
+  @Query(() => PaymentStatusResponse)
   @UseGuards(AuthGuard)
   async checkPaymentStatus(
     @Args('paymentStatusInput') paymentStatusInput: PaymentStatusInput,
-  ): Promise<PaymentResponse> {
-    return this.paymentService.checkPaymentStatus(paymentStatusInput);
+    @CurrentUser() user: User,
+  ): Promise<PaymentStatusResponse> {
+    try {
+      const result = await this.paymentService.checkPaymentStatus(paymentStatusInput);
+      
+      // Check if user is authorized to view this payment status
+      if (user.role === 'USER' && result.userId !== user.id) {
+        throw new Error('You are not authorized to check this payment status');
+      }
+      
+      return {
+        payment: result,
+        currentStatus: result.currentStatus,
+        success: result.success,
+        message: result.message,
+        details: result.details,
+      };
+    } catch (error) {
+      return {
+        payment: null,
+        currentStatus: 'UNKNOWN',
+        success: false,
+        message: error.message,
+      };
+    }
   }
 }
