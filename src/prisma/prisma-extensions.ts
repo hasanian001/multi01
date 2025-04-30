@@ -1,15 +1,42 @@
 import { PrismaClient } from '@prisma/client';
 
 /**
- * Extiende el cliente Prisma para asegurarse de que los modelos PaymentTransaction y PaymentRefund
- * estén disponibles para operaciones CRUD.
+ * Type for PaymentTransaction model attributes
+ */
+type PaymentTransactionAttributes = {
+  userId: number | string;
+  orderId: number | string;
+  status: string;
+  provider: string;
+  amount: number;
+  currency: string;
+  transactionId: string;
+  metadata?: Record<string, any>;
+};
+
+/**
+ * Type for PaymentRefund model attributes
+ */
+type PaymentRefundAttributes = {
+  paymentTransactionId: number | string;
+  amount: number;
+  currency: string;
+  refundId: string;
+  status: string;
+  reason?: string;
+  metadata?: Record<string, any>;
+};
+
+/**
+ * Extends the Prisma client to ensure PaymentTransaction and PaymentRefund models
+ * are available for CRUD operations via raw SQL.
  */
 export function extendPrismaClient(prisma: PrismaClient) {
   return prisma.$extends({
     model: {
-      // Aseguramos que PaymentTransaction esté disponible
+      // Ensure PaymentTransaction is available
       paymentTransaction: {
-        async findUnique(args) {
+        async findUnique(args: { where: Record<string, any> }) {
           const { where } = args;
           if (where.transactionId) {
             const results = await prisma.$queryRaw`
@@ -24,14 +51,14 @@ export function extendPrismaClient(prisma: PrismaClient) {
           }
           return null;
         },
-        async findMany(args) {
+        async findMany(args: { where?: Partial<PaymentTransactionAttributes>; orderBy?: Record<string, 'asc' | 'desc'>; skip?: number; take?: number }) {
           const { where, orderBy, skip, take } = args || {};
           let query = `SELECT * FROM "PaymentTransaction"`;
           
-          const whereConditions = [];
-          const params = [];
+          const whereConditions: string[] = [];
+          const params: any[] = [];
           
-          // Construir la cláusula WHERE básica
+          // Build basic WHERE clause
           if (where) {
             if (where.userId) {
               whereConditions.push(`"userId" = $${params.length + 1}`);
@@ -43,11 +70,11 @@ export function extendPrismaClient(prisma: PrismaClient) {
             }
             if (where.status) {
               whereConditions.push(`"status" = $${params.length + 1}`);
-              params.push(where.status);
+              params.push(where.status as string);
             }
             if (where.provider) {
               whereConditions.push(`"provider" = $${params.length + 1}`);
-              params.push(where.provider);
+              params.push(where.provider as string);
             }
           }
           
@@ -55,9 +82,9 @@ export function extendPrismaClient(prisma: PrismaClient) {
             query += ` WHERE ${whereConditions.join(' AND ')}`;
           }
           
-          // Ordenación
+          // Ordering
           if (orderBy) {
-            const orderByClauses = [];
+            const orderByClauses: string[] = [];
             for (const [field, direction] of Object.entries(orderBy)) {
               orderByClauses.push(`"${field}" ${direction === 'desc' ? 'DESC' : 'ASC'}`);
             }
@@ -66,7 +93,7 @@ export function extendPrismaClient(prisma: PrismaClient) {
             }
           }
           
-          // Paginación
+          // Pagination
           if (skip !== undefined) {
             query += ` OFFSET ${skip}`;
           }
@@ -76,12 +103,12 @@ export function extendPrismaClient(prisma: PrismaClient) {
           
           return await prisma.$queryRawUnsafe(query, ...params);
         },
-        async count(args) {
+        async count(args: { where?: Partial<PaymentTransactionAttributes> }) {
           const { where } = args || {};
           let query = `SELECT COUNT(*) FROM "PaymentTransaction"`;
           
-          const whereConditions = [];
-          const params = [];
+          const whereConditions: string[] = [];
+          const params: any[] = [];
           
           if (where) {
             if (where.userId) {
@@ -94,11 +121,11 @@ export function extendPrismaClient(prisma: PrismaClient) {
             }
             if (where.status) {
               whereConditions.push(`"status" = $${params.length + 1}`);
-              params.push(where.status);
+              params.push(where.status as string);
             }
             if (where.provider) {
               whereConditions.push(`"provider" = $${params.length + 1}`);
-              params.push(where.provider);
+              params.push(where.provider as string);
             }
           }
           
@@ -109,7 +136,7 @@ export function extendPrismaClient(prisma: PrismaClient) {
           const result = await prisma.$queryRawUnsafe(query, ...params);
           return Number(result[0].count);
         },
-        async create(args) {
+        async create(args: { data: Partial<PaymentTransactionAttributes> }) {
           const { data } = args;
           const columns = Object.keys(data).map(k => `"${k}"`).join(', ');
           const placeholders = Object.keys(data).map((_, i) => `$${i + 1}`).join(', ');
@@ -124,10 +151,10 @@ export function extendPrismaClient(prisma: PrismaClient) {
           const result = await prisma.$queryRawUnsafe(query, ...values);
           return result[0];
         },
-        async update(args) {
+        async update(args: { where: Record<string, any>; data: Partial<PaymentTransactionAttributes> }) {
           const { where, data } = args;
           
-          // Construir la parte SET
+          // Build the SET part
           const updateSet = Object.entries(data)
             .map(([key, value], index) => {
               if (key === 'metadata' && typeof value === 'object') {
@@ -139,7 +166,7 @@ export function extendPrismaClient(prisma: PrismaClient) {
           
           const values = Object.values(data);
           
-          // Construir la cláusula WHERE
+          // Build the WHERE clause
           let whereClause = '';
           if (where.id) {
             whereClause = `WHERE "id" = $${values.length + 1}`;
@@ -161,9 +188,9 @@ export function extendPrismaClient(prisma: PrismaClient) {
         }
       },
       
-      // Aseguramos que PaymentRefund esté disponible
+      // Ensure PaymentRefund is available
       paymentRefund: {
-        async create(args) {
+        async create(args: { data: Partial<PaymentRefundAttributes> }) {
           const { data } = args;
           const columns = Object.keys(data).map(k => `"${k}"`).join(', ');
           const placeholders = Object.keys(data).map((_, i) => `$${i + 1}`).join(', ');
@@ -178,17 +205,17 @@ export function extendPrismaClient(prisma: PrismaClient) {
           const result = await prisma.$queryRawUnsafe(query, ...values);
           return result[0];
         },
-        async update(args) {
+        async update(args: { where: Record<string, any>; data: Partial<PaymentRefundAttributes> }) {
           const { where, data } = args;
           
-          // Construir la parte SET
+          // Build the SET part
           const updateSet = Object.entries(data)
             .map(([key, value], index) => `"${key}" = $${index + 1}`)
             .join(', ');
           
           const values = Object.values(data);
           
-          // Construir la cláusula WHERE
+          // Build the WHERE clause
           let whereClause = '';
           if (where.id) {
             whereClause = `WHERE "id" = $${values.length + 1}`;
@@ -208,7 +235,7 @@ export function extendPrismaClient(prisma: PrismaClient) {
           const result = await prisma.$queryRawUnsafe(query, ...values);
           return result[0];
         },
-        async aggregate(args) {
+        async aggregate(args: { where?: Partial<PaymentRefundAttributes>; _sum?: Record<string, boolean> }) {
           const { where, _sum } = args;
           
           let selectClause = 'COUNT(*)';
@@ -217,7 +244,7 @@ export function extendPrismaClient(prisma: PrismaClient) {
           }
           
           let whereClause = '';
-          const values = [];
+          const values: any[] = [];
           if (where && where.paymentTransactionId) {
             whereClause = `WHERE "paymentTransactionId" = $1`;
             values.push(where.paymentTransactionId);
@@ -231,7 +258,7 @@ export function extendPrismaClient(prisma: PrismaClient) {
           
           const result = await prisma.$queryRawUnsafe(query, ...values);
           
-          // Formato esperado para el resultado de aggregate
+          // Expected format for aggregate result
           if (_sum && _sum.amount) {
             return {
               _sum: {

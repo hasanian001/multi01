@@ -1,112 +1,102 @@
-src/payment/payment.service.ts:325:13 - error TS2322: Type 'string' is not assignable to type 'boolean | BoolFieldUpdateOperationsInput | undefined'.
+src/prisma/prisma-extensions.ts:46:27 - error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.      
 
-325             paymentStatus: 'PAID',
-                ~~~~~~~~~~~~~
+46               params.push(where.status);
+                             ~~~~~~~~~~~~
 
-  node_modules/.prisma/client/index.d.ts:53948:5
-    53948     paymentStatus?: BoolFieldUpdateOperationsInput | boolean
-              ~~~~~~~~~~~~~
-    The expected type comes from property 'paymentStatus' which is declared here on type '(Without<OrderUpdateInput, OrderUncheckedUpdateInput> & OrderUncheckedUpdateInput) | (Without<...> & OrderUpdateInput)'
+src/prisma/prisma-extensions.ts:49:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.   
 
-src/payment/payment.service.ts:346:52 - error TS2339: Property 'paymentTransaction' does not exist on type 'PrismaService'.
+49               whereConditions.push(`"provider" = $${params.length + 1}`);
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-346       const paymentTransaction = await this.prisma.paymentTransaction.findUnique({
-                                                       ~~~~~~~~~~~~~~~~~~
+src/prisma/prisma-extensions.ts:50:27 - error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.      
 
-src/payment/payment.service.ts:360:47 - error TS2339: Property 'paymentRefund' does not exist on type 'PrismaService'.
+50               params.push(where.provider);
+                             ~~~~~~~~~~~~~~
 
-360       const refundedSoFar = await this.prisma.paymentRefund.aggregate({
-                                                  ~~~~~~~~~~~~~
+src/prisma/prisma-extensions.ts:62:35 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
 
-src/payment/payment.service.ts:379:40 - error TS2339: Property 'paymentRefund' does not exist on type 'PrismaService'.
+62               orderByClauses.push(`"${field}" ${direction === 'desc' ? 'DESC' : 'ASC'}`);
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-379       const refund = await this.prisma.paymentRefund.create({
-                                           ~~~~~~~~~~~~~
+src/prisma/prisma-extensions.ts:88:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.   
 
-src/payment/payment.service.ts:428:47 - error TS2339: Property 'paymentRefund' does not exist on type 'PrismaService'.
+88               whereConditions.push(`"userId" = $${params.length + 1}`);
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-428       const updatedRefund = await this.prisma.paymentRefund.update({
-                                                  ~~~~~~~~~~~~~
+src/prisma/prisma-extensions.ts:89:27 - error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.      
 
-src/payment/payment.service.ts:448:29 - error TS2339: Property 'paymentTransaction' does not exist on type 'PrismaService'.       
+89               params.push(where.userId);
+                             ~~~~~~~~~~~~
 
-448           await this.prisma.paymentTransaction.update({
-                                ~~~~~~~~~~~~~~~~~~
+src/prisma/prisma-extensions.ts:92:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.   
 
-src/payment/payment.service.ts:455:29 - error TS2339: Property 'paymentTransaction' does not exist on type 'PrismaService'.       
+92               whereConditions.push(`"orderId" = $${params.length + 1}`);
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-455           await this.prisma.paymentTransaction.update({
-                                ~~~~~~~~~~~~~~~~~~
+src/prisma/prisma-extensions.ts:93:27 - error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.      
 
-src/payment/payment.service.ts:478:52 - error TS2339: Property 'paymentTransaction' does not exist on type 'PrismaService'.
+93               params.push(where.orderId);
+                             ~~~~~~~~~~~~~
 
-478       const paymentTransaction = await this.prisma.paymentTransaction.findUnique({
-                                                       ~~~~~~~~~~~~~~~~~~
+src/prisma/prisma-extensions.ts:96:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.   
 
-src/payment/payment.service.ts:494:27 - error TS2339: Property 'paymentTransaction' does not exist on type 'PrismaService'.
+96               whereConditions.push(`"status" = $${params.length + 1}`);
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-494         await this.prisma.paymentTransaction.update({
-                              ~~~~~~~~~~~~~~~~~~
+src/prisma/prisma-extensions.ts:97:27 - error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.      
 
-src/payment/payment.service.ts:511:15 - error TS2322: Type 'string' is not assignable to type 'boolean | BoolFieldUpdateOperationsInput | undefined'.
+97               params.push(where.status);
+                             ~~~~~~~~~~~~
 
-511               paymentStatus: 'PAID',
-                  ~~~~~~~~~~~~~
+src/prisma/prisma-extensions.ts:100:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
 
-  node_modules/.prisma/client/index.d.ts:53948:5
-    53948     paymentStatus?: BoolFieldUpdateOperationsInput | boolean
-              ~~~~~~~~~~~~~
-    The expected type comes from property 'paymentStatus' which is declared here on type '(Without<OrderUpdateInput, OrderUncheckedUpdateInput> & OrderUncheckedUpdateInput) | (Without<...> & OrderUpdateInput)'
+100               whereConditions.push(`"provider" = $${params.length + 1}`);
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-src/payment/providers/bank-transfer.payment.service.ts:3:10 - error TS2305: Module '"@prisma/client"' has no exported member 'PaymentTransaction'.
+src/prisma/prisma-extensions.ts:101:27 - error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.     
 
-3 import { PaymentTransaction, PaymentTransactionStatus } from '@prisma/client';
-           ~~~~~~~~~~~~~~~~~~
+101               params.push(where.provider);
+                              ~~~~~~~~~~~~~~
 
-src/payment/providers/bank-transfer.payment.service.ts:3:30 - error TS2305: Module '"@prisma/client"' has no exported member 'PaymentTransactionStatus'.
+src/prisma/prisma-extensions.ts:110:25 - error TS18046: 'result' is of type 'unknown'.
 
-3 import { PaymentTransaction, PaymentTransactionStatus } from '@prisma/client';
-                               ~~~~~~~~~~~~~~~~~~~~~~~~
+110           return Number(result[0].count);
+                            ~~~~~~
 
-src/payment/providers/cash-on-delivery.payment.service.ts:3:10 - error TS2305: Module '"@prisma/client"' has no exported member 'PaymentTransaction'.
+src/prisma/prisma-extensions.ts:125:18 - error TS18046: 'result' is of type 'unknown'.
 
-3 import { PaymentTransaction, PaymentTransactionStatus } from '@prisma/client';
-           ~~~~~~~~~~~~~~~~~~
+125           return result[0];
+                     ~~~~~~
 
-src/payment/providers/cash-on-delivery.payment.service.ts:3:30 - error TS2305: Module '"@prisma/client"' has no exported member 'PaymentTransactionStatus'.
+src/prisma/prisma-extensions.ts:160:18 - error TS18046: 'result' is of type 'unknown'.
 
-3 import { PaymentTransaction, PaymentTransactionStatus } from '@prisma/client';
-                               ~~~~~~~~~~~~~~~~~~~~~~~~
+160           return result[0];
+                     ~~~~~~
 
-src/payment/providers/paypal.payment.service.ts:3:10 - error TS2305: Module '"@prisma/client"' has no exported member 'PaymentTransaction'.
+src/prisma/prisma-extensions.ts:179:18 - error TS18046: 'result' is of type 'unknown'.
 
-3 import { PaymentTransaction, PaymentTransactionStatus } from '@prisma/client';
-           ~~~~~~~~~~~~~~~~~~
+179           return result[0];
+                     ~~~~~~
 
-src/payment/providers/paypal.payment.service.ts:3:30 - error TS2305: Module '"@prisma/client"' has no exported member 'PaymentTransactionStatus'.
+src/prisma/prisma-extensions.ts:209:18 - error TS18046: 'result' is of type 'unknown'.
 
-3 import { PaymentTransaction, PaymentTransactionStatus } from '@prisma/client';
-                               ~~~~~~~~~~~~~~~~~~~~~~~~
+209           return result[0];
+                     ~~~~~~
 
-src/payment/providers/sslcommerz.payment.service.ts:3:10 - error TS2305: Module '"@prisma/client"' has no exported member 'PaymentTransaction'.
+src/prisma/prisma-extensions.ts:223:25 - error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.     
 
-3 import { PaymentTransaction, PaymentTransactionStatus } from '@prisma/client';
-           ~~~~~~~~~~~~~~~~~~
+223             values.push(where.paymentTransactionId);
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-src/payment/providers/sslcommerz.payment.service.ts:3:30 - error TS2305: Module '"@prisma/client"' has no exported member 'PaymentTransactionStatus'.
+src/prisma/prisma-extensions.ts:238:32 - error TS18046: 'result' is of type 'unknown'.
 
-3 import { PaymentTransaction, PaymentTransactionStatus } from '@prisma/client';
-                               ~~~~~~~~~~~~~~~~~~~~~~~~
+238                 amount: Number(result[0].result) || 0
+                                   ~~~~~~
 
-src/payment/providers/stripe.payment.service.ts:3:10 - error TS2305: Module '"@prisma/client"' has no exported member 'PaymentTransaction'.
+src/prisma/prisma-extensions.ts:244:28 - error TS18046: 'result' is of type 'unknown'.
 
-3 import { PaymentTransaction, PaymentTransactionStatus } from '@prisma/client';
-           ~~~~~~~~~~~~~~~~~~
-
-src/payment/providers/stripe.payment.service.ts:3:30 - error TS2305: Module '"@prisma/client"' has no exported member 'PaymentTransactionStatus'.
-
-3 import { PaymentTransaction, PaymentTransactionStatus } from '@prisma/client';
-                               ~~~~~~~~~~~~~~~~~~~~~~~~
+244             _count: Number(result[0].result)
+                               ~~~~~~
 
 src/product/product.resolver.ts:19:5 - error TS2322: Type '{ products: { name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }[]; count: number; success: boolean; message: string; }' is not assignable to type 'ProductsResponse'.
   Types of property 'products' are incompatible.
@@ -700,7 +690,7 @@ src/user/user.service.ts:93:30 - error TS2345: Argument of type 'string' is not 
 93     await this.createSession(newUser.id, token);
                                 ~~~~~~~~~~
 
-src/user/user.service.ts:112:7 - error TS2322: Type '{ email: string; }' is not assignable to type 'UserWhereUniqueInput'.        
+src/user/user.service.ts:112:7 - error TS2322: Type '{ email: string; }' is not assignable to type 'UserWhereUniqueInput'.
   Type '{ email: string; }' is not assignable to type '{ id: string; } & { id?: string | undefined; AND?: UserWhereInput | UserWhereInput[] | undefined; OR?: UserWhereInput[] | undefined; ... 25 more ...; usedCoupons?: UsedCouponListRelationFilter | undefined; }'.
     Property 'id' is missing in type '{ email: string; }' but required in type '{ id: string; }'.
 
@@ -722,7 +712,7 @@ src/user/user.service.ts:116:57 - error TS2345: Argument of type 'string | null'
 116     if (!user || !(await this.comparePassword(password, user.password))) {
                                                             ~~~~~~~~~~~~~
 
-src/user/user.service.ts:126:38 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.        
+src/user/user.service.ts:126:38 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
 
 126     const token = this.generateToken(user.id);
                                          ~~~~~~~
@@ -772,7 +762,7 @@ src/user/user.service.ts:189:16 - error TS2322: Type 'number' is not assignable 
               ~~
     The expected type comes from property 'id' which is declared here on type 'UserWhereUniqueInput'
 
-src/user/user.service.ts:197:73 - error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+src/user/user.service.ts:197:73 - error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'. 
   Type 'null' is not assignable to type 'string'.
 
 197     const isPasswordValid = await this.comparePassword(currentPassword, user.password);
@@ -898,4 +888,4 @@ src/wishlist/wishlist.service.ts:157:16 - error TS2322: Type 'number' is not ass
 157       where: { userId },
                    ~~~~~~
 
-[8:05:34 PM] Found 377 errors. Watching for file changes.
+[9:10:22 PM] Found 365 errors. Watching for file changes.

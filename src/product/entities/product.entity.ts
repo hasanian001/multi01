@@ -1,5 +1,7 @@
 import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
 import { Shop } from '../../shop/entities/shop.entity';
+import { Category } from '../../category/entities/category.entity';
+import { Brand } from '../../brand/entities/brand.entity';
 
 @ObjectType()
 export class Product {
@@ -19,16 +21,22 @@ export class Product {
   shopId: number;
 
   @Field(() => Shop, { nullable: true })
-  shop?: any;
+  shop?: Shop;
 
   @Field(() => ID)
   categoryId: number;
+
+  @Field(() => Category, { nullable: true })
+  category?: Category;
 
   @Field(() => ID, { nullable: true })
   subCategoryId?: number | null;
 
   @Field(() => ID, { nullable: true })
   brandId?: number | null;
+
+  @Field(() => Brand, { nullable: true })
+  brand?: Brand;
 
   @Field(() => Float)
   price: number;

@@ -275,7 +275,7 @@ export class PaymentService {
   }
 
   async completePayment(completePaymentInput: CompletePaymentInput) {
-    const { transactionId, paymentIntent, paymentMethod, paymentStatus, metadata = {} } = completePaymentInput;
+    const { transactionId, paymentIntent, paymentMethod, payment_status, metadata = {} } = completePaymentInput;
 
     this.logger.log(`Completing payment for transaction ${transactionId}`);
 
@@ -291,11 +291,11 @@ export class PaymentService {
 
       // Determine the new status
       let newStatus = paymentTransaction.status;
-      if (paymentStatus === 'success') {
+      if (payment_status === 'success') {
         newStatus = PaymentTransactionStatus.SUCCESS;
-      } else if (paymentStatus === 'failed') {
+      } else if (payment_status === 'failed') {
         newStatus = PaymentTransactionStatus.FAILED;
-      } else if (paymentStatus === 'cancelled') {
+      } else if (payment_status === 'cancelled') {
         newStatus = PaymentTransactionStatus.CANCELLED;
       }
 
@@ -321,7 +321,7 @@ export class PaymentService {
         await this.prisma.order.update({
           where: { id: updatedPayment.orderId },
           data: {
-            payment_status: PaymentStatus.PAID,
+            payment_status: PaymentStatus.PAID, // Using the correct field name and enum value
             // You might also want to update the order status based on your business logic
             // status: OrderStatus.PROCESSING,
           },
@@ -507,7 +507,7 @@ export class PaymentService {
           await this.prisma.order.update({
             where: { id: paymentTransaction.orderId },
             data: {
-              payment_status: PaymentStatus.PAID,
+              payment_status: PaymentStatus.PAID, // Using the correct field name and enum value
               // You might also want to update the order status based on your business logic
               // status: OrderStatus.PROCESSING,
             },

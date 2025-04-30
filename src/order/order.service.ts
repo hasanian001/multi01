@@ -1,9 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderInput, UpdateOrderInput, OrderFilterInput } from './dto/order.dto';
-import { OrderStatus, PaymentStatus } from './entities/order.entity';
-import { User } from '@prisma/client';
-import { v4 as uuidv4 } from 'uuid';
+import { User, OrderStatus, PaymentStatus } from '@prisma/client';
+import { generateOrderNumber } from '../utils/generate-order-number';
 
 @Injectable()
 export class OrderService {
@@ -14,12 +13,10 @@ export class OrderService {
     const {
       userId,
       shopId,
-      orderNumber,
       status,
-      paymentStatus,
-      paymentMethod,
-      startDate,
-      endDate,
+      payment_status,
+      fromDate,
+      toDate,
       limit = 10,
       offset = 0,
       sortBy = 'created_at',
@@ -28,19 +25,27 @@ export class OrderService {
 
     // Build filter conditions
     const where: any = {
-      ...(userId && { userId }),
-      ...(shopId && { shopId }),
-      ...(orderNumber && { orderNumber }),
+      ...(userId && { userId: Number(userId) }),
       ...(status && { status }),
-      ...(paymentStatus && { paymentStatus }),
-      ...(paymentMethod && { paymentMethod }),
+      ...(payment_status && { payment_status }),
     };
 
     // Add date range filter
-    if (startDate || endDate) {
+    if (fromDate || toDate) {
       where.created_at = {
-        ...(startDate && { gte: new Date(startDate) }),
-        ...(endDate && { lte: new Date(endDate) }),
+        ...(fromDate && { gte: new Date(fromDate) }),
+        ...(toDate && { lte: new Date(toDate) }),
+      };
+    }
+
+    // If shopId is provided, filter by products' shop
+    if (shopId) {
+      where.items = {
+        some: {
+          product: {
+            shopId: Number(shopId),
+          },
+        },
       };
     }
 
@@ -59,14 +64,15 @@ export class OrderService {
             phone: true,
           },
         },
-        shop: shopId ? {
-          select: {
-            id: true,
-            name: true,
-            logo: true,
+        items: {
+          include: {
+            product: {
+              include: {
+                shop: true,
+              },
+            },
           },
-        } : false,
-        items: true,
+        },
       },
       skip: offset,
       take: limit,
@@ -94,14 +100,15 @@ export class OrderService {
             phone: true,
           },
         },
-        shop: {
-          select: {
-            id: true,
-            name: true,
-            logo: true,
+        items: {
+          include: {
+            product: {
+              include: {
+                shop: true,
+              },
+            },
           },
         },
-        items: true,
       },
     });
 
@@ -119,13 +126,10 @@ export class OrderService {
   // Get orders for a user
   async findUserOrders(userId: number, filterInput?: Omit<OrderFilterInput, 'userId'>) {
     const {
-      shopId,
-      orderNumber,
       status,
-      paymentStatus,
-      paymentMethod,
-      startDate,
-      endDate,
+      payment_status,
+      fromDate,
+      toDate,
       limit = 10,
       offset = 0,
       sortBy = 'created_at',
@@ -135,18 +139,15 @@ export class OrderService {
     // Build filter conditions
     const where: any = {
       userId,
-      ...(shopId && { shopId }),
-      ...(orderNumber && { orderNumber }),
       ...(status && { status }),
-      ...(paymentStatus && { paymentStatus }),
-      ...(paymentMethod && { paymentMethod }),
+      ...(payment_status && { payment_status }),
     };
 
     // Add date range filter
-    if (startDate || endDate) {
+    if (fromDate || toDate) {
       where.created_at = {
-        ...(startDate && { gte: new Date(startDate) }),
-        ...(endDate && { lte: new Date(endDate) }),
+        ...(fromDate && { gte: new Date(fromDate) }),
+        ...(toDate && { lte: new Date(toDate) }),
       };
     }
 
@@ -157,14 +158,15 @@ export class OrderService {
     const orders = await this.prisma.order.findMany({
       where,
       include: {
-        shop: {
-          select: {
-            id: true,
-            name: true,
-            logo: true,
+        items: {
+          include: {
+            product: {
+              include: {
+                shop: true,
+              },
+            },
           },
         },
-        items: true,
       },
       skip: offset,
       take: limit,
@@ -175,43 +177,45 @@ export class OrderService {
       orders,
       count,
       success: true,
-      message: 'User orders fetched successfully',
+      message: 'Orders fetched successfully',
     };
   }
 
   // Get orders for a shop
   async findShopOrders(shopId: number, filterInput?: Omit<OrderFilterInput, 'shopId'>) {
     const {
-      userId,
-      orderNumber,
       status,
-      paymentStatus,
-      paymentMethod,
-      startDate,
-      endDate,
+      payment_status,
+      fromDate,
+      toDate,
       limit = 10,
       offset = 0,
       sortBy = 'created_at',
       sortOrder = 'desc',
     } = filterInput || {};
 
-    // Build filter conditions
+    // Build base filter conditions (without shop for now)
     const where: any = {
-      shopId,
-      ...(userId && { userId }),
-      ...(orderNumber && { orderNumber }),
       ...(status && { status }),
-      ...(paymentStatus && { paymentStatus }),
-      ...(paymentMethod && { paymentMethod }),
+      ...(payment_status && { payment_status }),
     };
 
     // Add date range filter
-    if (startDate || endDate) {
+    if (fromDate || toDate) {
       where.created_at = {
-        ...(startDate && { gte: new Date(startDate) }),
-        ...(endDate && { lte: new Date(endDate) }),
+        ...(fromDate && { gte: new Date(fromDate) }),
+        ...(toDate && { lte: new Date(toDate) }),
       };
     }
+
+    // Add filter to include only orders with items from this shop
+    where.items = {
+      some: {
+        product: {
+          shopId: Number(shopId),
+        },
+      },
+    };
 
     // Get total count for pagination
     const count = await this.prisma.order.count({ where });
@@ -228,15 +232,29 @@ export class OrderService {
             phone: true,
           },
         },
-        items: true,
+        items: {
+          include: {
+            product: {
+              include: {
+                shop: true,
+              },
+            },
+          },
+        },
       },
       skip: offset,
       take: limit,
       orderBy: { [sortBy]: sortOrder },
     });
 
+    // Filter order items to only include those for this shop
+    const filteredOrders = orders.map(order => ({
+      ...order,
+      items: order.items.filter(item => item.product.shopId === Number(shopId)),
+    }));
+
     return {
-      orders,
+      orders: filteredOrders,
       count,
       success: true,
       message: 'Shop orders fetched successfully',
@@ -245,129 +263,95 @@ export class OrderService {
 
   // Create new order
   async create(createOrderInput: CreateOrderInput, user: User) {
-    const { items, shopId, discount = 0, ...orderData } = createOrderInput;
+    const { items, ...orderData } = createOrderInput;
 
-    // Check if items are valid
+    // Check if the cart is empty
     if (!items || items.length === 0) {
-      throw new BadRequestException('Order must have at least one item');
+      throw new BadRequestException('Cannot create order with empty cart');
     }
 
-    // Fetch products information
-    const productIds = items.map(item => item.productId);
-    const products = await this.prisma.product.findMany({
-      where: {
-        id: { in: productIds },
-      },
-    });
-
-    // Check if all products exist
-    if (products.length !== productIds.length) {
-      throw new BadRequestException('Some products do not exist');
-    }
-
-    // Check if products are in stock
-    for (const item of items) {
-      const product = products.find(p => p.id === item.productId);
-      if (!product) {
-        throw new BadRequestException(`Product with ID ${item.productId} not found`);
-      }
-      if (product.stock < item.quantity) {
-        throw new BadRequestException(`Not enough stock for product: ${product.name}`);
-      }
-    }
-
-    // Check shop ID if provided
-    if (shopId) {
-      const shop = await this.prisma.shop.findUnique({
-        where: { id: shopId },
-      });
-      if (!shop) {
-        throw new BadRequestException(`Shop with ID ${shopId} not found`);
-      }
-    }
-
-    // Calculate order totals
+    // Validate products and calculate totals
     let subtotal = 0;
     const orderItems = [];
 
     for (const item of items) {
-      const product = products.find(p => p.id === item.productId);
-      const price = product.sale_price || product.price;
-      const itemSubtotal = price * item.quantity;
+      const { productId, quantity } = item;
+
+      // Check if product exists
+      const product = await this.prisma.product.findUnique({
+        where: { id: Number(productId) },
+      });
+
+      if (!product) {
+        throw new NotFoundException(`Product with ID ${productId} not found`);
+      }
+
+      // Check if the product is in stock
+      if (product.stock < quantity) {
+        throw new BadRequestException(`Product "${product.name}" only has ${product.stock} items in stock`);
+      }
+
+      // Calculate subtotal
+      const itemPrice = product.sale_price || product.price;
+      const itemSubtotal = itemPrice * quantity;
       subtotal += itemSubtotal;
 
+      // Prepare order item
       orderItems.push({
-        productId: product.id,
-        productName: product.name,
-        productImage: product.images[0] || null,
-        price,
-        quantity: item.quantity,
-        subtotal: itemSubtotal,
+        productId: Number(productId),
+        quantity,
+        price: itemPrice,
       });
     }
 
-    // Calculate tax and total
-    const tax = subtotal * 0.1; // 10% tax rate
-    const shipping = 10; // Fixed shipping cost
-    const total = subtotal - discount + tax + shipping;
+    // Calculate total
+    const discount = orderData.discount || 0;
+    const shippingFee = orderData.shipping_fee || 0;
+    const total = subtotal - discount + shippingFee;
 
-    // Generate order number
-    const orderNumber = `ORD-${uuidv4().substring(0, 8).toUpperCase()}`;
+    // Generate unique order number
+    const orderNumber = generateOrderNumber();
 
-    // Create order transaction
-    const order = await this.prisma.$transaction(async (prisma) => {
-      // Create order
-      const newOrder = await prisma.order.create({
-        data: {
-          orderNumber,
-          userId: user.id,
-          shopId,
-          subtotal,
-          discount,
-          tax,
-          shipping,
-          total,
-          status: OrderStatus.PENDING,
-          paymentStatus: PaymentStatus.PENDING,
-          ...orderData,
-          items: {
-            create: orderItems,
+    // Create order with items
+    const order = await this.prisma.order.create({
+      data: {
+        ...orderData,
+        userId: user.id,
+        total,
+        discount,
+        shipping_fee: shippingFee,
+        items: {
+          create: orderItems,
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
           },
         },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phone: true,
-            },
+        items: {
+          include: {
+            product: true,
           },
-          shop: shopId ? {
-            select: {
-              id: true,
-              name: true,
-              logo: true,
-            },
-          } : false,
-          items: true,
+        },
+      },
+    });
+
+    // Update product stock
+    for (const item of orderItems) {
+      await this.prisma.product.update({
+        where: { id: item.productId },
+        data: {
+          stock: {
+            decrement: item.quantity,
+          },
         },
       });
-
-      // Update product stock
-      for (const item of items) {
-        await prisma.product.update({
-          where: { id: item.productId },
-          data: {
-            stock: {
-              decrement: item.quantity,
-            },
-          },
-        });
-      }
-
-      return newOrder;
-    });
+    }
 
     return {
       order,
@@ -378,13 +362,21 @@ export class OrderService {
 
   // Update order
   async update(updateOrderInput: UpdateOrderInput, user: User) {
-    const { id, ...updateData } = updateOrderInput;
+    const { id, status, payment_status, tracking_number, notes } = updateOrderInput;
 
     // Check if order exists
     const order = await this.prisma.order.findUnique({
       where: { id },
       include: {
-        items: true,
+        items: {
+          include: {
+            product: {
+              include: {
+                shop: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -392,24 +384,43 @@ export class OrderService {
       throw new NotFoundException(`Order with ID ${id} not found`);
     }
 
-    // Check if user is admin or the order belongs to this user
+    // Only admin or the user who placed the order can update it
     if (user.role !== 'ADMIN' && order.userId !== user.id) {
-      throw new BadRequestException('You are not authorized to update this order');
+      // Check if user is a seller and this order contains their products
+      const isSeller = user.role === 'SELLER';
+      const isSellerOrder = order.items.some(
+        item => item.product.shop.ownerId === user.id
+      );
+
+      if (!(isSeller && isSellerOrder)) {
+        throw new BadRequestException('You are not authorized to update this order');
+      }
     }
 
-    // Convert delivery date string to Date object if provided
-    let deliveryDate;
-    if (updateData.deliveryDate) {
-      deliveryDate = new Date(updateData.deliveryDate);
-      delete updateData.deliveryDate;
+    // If status is being updated, validate status change
+    if (status) {
+      // Validate status transitions
+      if (order.status === OrderStatus.CANCELLED) {
+        throw new BadRequestException('Cannot update a cancelled order');
+      }
+
+      if (
+        order.status === OrderStatus.DELIVERED &&
+        status !== OrderStatus.COMPLETED &&
+        status !== OrderStatus.RETURNED
+      ) {
+        throw new BadRequestException('Delivered order can only be marked as completed or returned');
+      }
     }
 
     // Update order
     const updatedOrder = await this.prisma.order.update({
       where: { id },
       data: {
-        ...updateData,
-        ...(deliveryDate && { deliveryDate }),
+        ...(status && { status }),
+        ...(payment_status && { payment_status }),
+        ...(tracking_number && { tracking_number }),
+        ...(notes && { notes }),
       },
       include: {
         user: {
@@ -420,16 +431,31 @@ export class OrderService {
             phone: true,
           },
         },
-        shop: {
-          select: {
-            id: true,
-            name: true,
-            logo: true,
+        items: {
+          include: {
+            product: {
+              include: {
+                shop: true,
+              },
+            },
           },
         },
-        items: true,
       },
     });
+
+    // If order is cancelled, restore product stock
+    if (status === OrderStatus.CANCELLED && order.status !== OrderStatus.CANCELLED) {
+      for (const item of order.items) {
+        await this.prisma.product.update({
+          where: { id: item.productId },
+          data: {
+            stock: {
+              increment: item.quantity,
+            },
+          },
+        });
+      }
+    }
 
     return {
       order: updatedOrder,
@@ -444,7 +470,11 @@ export class OrderService {
     const order = await this.prisma.order.findUnique({
       where: { id },
       include: {
-        items: true,
+        items: {
+          include: {
+            product: true,
+          },
+        },
       },
     });
 
@@ -452,59 +482,57 @@ export class OrderService {
       throw new NotFoundException(`Order with ID ${id} not found`);
     }
 
-    // Check if user is admin or the order belongs to this user
+    // Only admin or the user who placed the order can cancel it
     if (user.role !== 'ADMIN' && order.userId !== user.id) {
       throw new BadRequestException('You are not authorized to cancel this order');
     }
 
-    // Check if order can be cancelled
-    if (order.status !== OrderStatus.PENDING && order.status !== OrderStatus.PROCESSING) {
-      throw new BadRequestException('Order cannot be cancelled at this stage');
+    // Validate order status
+    if (order.status === OrderStatus.CANCELLED) {
+      throw new BadRequestException('Order is already cancelled');
     }
 
-    // Cancel order transaction
-    const cancelledOrder = await this.prisma.$transaction(async (prisma) => {
-      // Update order status
-      const updatedOrder = await prisma.order.update({
-        where: { id },
-        data: {
-          status: OrderStatus.CANCELLED,
-          paymentStatus: PaymentStatus.REFUNDED,
+    if (
+      order.status === OrderStatus.DELIVERED ||
+      order.status === OrderStatus.COMPLETED
+    ) {
+      throw new BadRequestException('Cannot cancel delivered or completed orders');
+    }
+
+    // Cancel order
+    const cancelledOrder = await this.prisma.order.update({
+      where: { id },
+      data: {
+        status: OrderStatus.CANCELLED,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
         },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phone: true,
-            },
+        items: {
+          include: {
+            product: true,
           },
-          shop: {
-            select: {
-              id: true,
-              name: true,
-              logo: true,
-            },
+        },
+      },
+    });
+
+    // Restore product stock
+    for (const item of order.items) {
+      await this.prisma.product.update({
+        where: { id: item.productId },
+        data: {
+          stock: {
+            increment: item.quantity,
           },
-          items: true,
         },
       });
-
-      // Restore product stock
-      for (const item of order.items) {
-        await prisma.product.update({
-          where: { id: item.productId },
-          data: {
-            stock: {
-              increment: item.quantity,
-            },
-          },
-        });
-      }
-
-      return updatedOrder;
-    });
+    }
 
     return {
       order: cancelledOrder,

@@ -20,31 +20,43 @@ export class ShopService {
     };
 
     // Get total count for pagination
-    const count = await this.prisma.shop.count({ where });
+    const count = await this.prisma.$queryRaw<[{count: number}]>`
+      SELECT COUNT(*) as count FROM shops WHERE 
+      ${ownerId ? `"ownerId" = ${ownerId} AND` : ''} 
+      ${name ? `name ILIKE '%${name}%' AND` : ''} 
+      ${is_verified !== undefined ? `"is_verified" = ${is_verified} AND` : ''}
+      ${is_featured !== undefined ? `"is_featured" = ${is_featured} AND` : ''}
+      TRUE
+    `;
 
     // Get shops with applied filters
-    const shops = await this.prisma.shop.findMany({
-      where,
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            role: true,
-            is_verified: true,
-          },
-        },
-      },
-      skip: offset,
-      take: limit,
-      orderBy: { created_at: 'desc' },
-    });
+    const shops = await this.prisma.$queryRaw`
+      SELECT s.*, u.id as "userId", u.name as "userName", u.email as "userEmail" 
+      FROM shops s
+      LEFT JOIN "User" u ON s."ownerId" = u.id
+      WHERE 
+      ${ownerId ? `s."ownerId" = ${ownerId} AND` : ''} 
+      ${name ? `s.name ILIKE '%${name}%' AND` : ''} 
+      ${is_verified !== undefined ? `s."is_verified" = ${is_verified} AND` : ''}
+      ${is_featured !== undefined ? `s."is_featured" = ${is_featured} AND` : ''}
+      TRUE
+      ORDER BY s.created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    // Transform results to match the expected schema
+    const formattedShops = shops.map(shop => ({
+      ...shop,
+      owner: {
+        id: shop.userId,
+        name: shop.userName,
+        email: shop.userEmail,
+      }
+    }));
 
     return {
-      shops,
-      count,
+      shops: formattedShops,
+      count: Number(count[0].count),
       success: true,
       message: 'Shops fetched successfully',
     };
@@ -52,107 +64,83 @@ export class ShopService {
 
   // Get shop by ID
   async findOne(id: number) {
-    const shop = await this.prisma.shop.findUnique({
-      where: { id },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            role: true,
-            is_verified: true,
-          },
-        },
-      },
-    });
+    const shop = await this.prisma.$queryRaw`
+      SELECT s.*, u.id as "userId", u.name as "userName", u.email as "userEmail" 
+      FROM shops s
+      LEFT JOIN "User" u ON s."ownerId" = u.id
+      WHERE s.id = ${id}
+    `;
 
-    if (!shop) {
+    if (!shop || shop.length === 0) {
       throw new NotFoundException(`Shop with ID ${id} not found`);
     }
 
+    // Transform results to match the expected schema
+    const formattedShop = {
+      ...shop[0],
+      owner: {
+        id: shop[0].userId,
+        name: shop[0].userName,
+        email: shop[0].userEmail,
+      }
+    };
+
     return {
-      shop,
+      shop: formattedShop,
       success: true,
       message: 'Shop fetched successfully',
     };
   }
 
-  // Get shop by owner ID
-  async findByOwner(ownerId: number) {
-    const shops = await this.prisma.shop.findMany({
-      where: { ownerId },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            role: true,
-            is_verified: true,
-          },
-        },
-      },
-    });
+  // Get shops for a user
+  async findMyShops(userId: number) {
+    const shops = await this.prisma.$queryRaw`
+      SELECT * FROM shops
+      WHERE "ownerId" = ${userId}
+      ORDER BY created_at DESC
+    `;
+
+    const count = shops.length;
 
     return {
       shops,
-      count: shops.length,
+      count,
       success: true,
-      message: 'Shops fetched successfully',
+      message: 'Your shops fetched successfully',
     };
   }
 
   // Create new shop
   async create(createShopInput: CreateShopInput, user: User) {
-    // Check if user already has a shop
-    const existingShop = await this.prisma.shop.findFirst({
-      where: { ownerId: user.id },
-    });
+    // Check if user already has a shop with this name
+    const shopExists = await this.prisma.$queryRaw<any[]>`
+      SELECT * FROM shops
+      WHERE "ownerId" = ${user.id} AND name = ${createShopInput.name}
+    `;
 
-    if (existingShop) {
-      throw new ConflictException('You already have a shop');
+    if (shopExists && shopExists.length > 0) {
+      throw new ConflictException(`You already have a shop with the name "${createShopInput.name}"`);
     }
 
-    // Check if shop name already exists
-    const shopWithName = await this.prisma.shop.findFirst({
-      where: { name: createShopInput.name },
-    });
-
-    if (shopWithName) {
-      throw new ConflictException('Shop name already exists');
-    }
-
-    // Create shop
-    const shop = await this.prisma.shop.create({
-      data: {
-        ...createShopInput,
-        ownerId: user.id,
-      },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            role: true,
-            is_verified: true,
-          },
-        },
-      },
-    });
-
-    // Update user role to SELLER
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { role: 'SELLER' },
-    });
+    // Create new shop
+    const shop = await this.prisma.$queryRaw`
+      INSERT INTO shops (name, description, logo, banner, "ownerId", "is_verified", "is_featured", created_at, updated_at)
+      VALUES (
+        ${createShopInput.name}, 
+        ${createShopInput.description || null}, 
+        ${createShopInput.logo || null}, 
+        ${createShopInput.banner || null}, 
+        ${user.id}, 
+        false, 
+        false, 
+        CURRENT_TIMESTAMP, 
+        CURRENT_TIMESTAMP
+      )
+      RETURNING *
+    `;
 
     return {
-      shop,
+      shop: shop[0],
       success: true,
       message: 'Shop created successfully',
     };
@@ -163,164 +151,119 @@ export class ShopService {
     const { id, ...updateData } = updateShopInput;
 
     // Check if shop exists
-    const shop = await this.prisma.shop.findUnique({
-      where: { id },
-    });
+    const existingShop = await this.prisma.$queryRaw<any[]>`
+      SELECT * FROM shops WHERE id = ${id}
+    `;
 
-    if (!shop) {
+    if (!existingShop || existingShop.length === 0) {
       throw new NotFoundException(`Shop with ID ${id} not found`);
     }
 
-    // Check if user is the owner or an admin
-    if (shop.ownerId !== user.id && user.role !== 'ADMIN') {
-      throw new BadRequestException('You are not authorized to update this shop');
-    }
-
-    // If name is being updated, check if it already exists
-    if (updateData.name) {
-      const shopWithName = await this.prisma.shop.findFirst({
-        where: {
-          name: updateData.name,
-          id: { not: id },
-        },
-      });
-
-      if (shopWithName) {
-        throw new ConflictException('Shop name already exists');
-      }
+    // Check if user has permission to update this shop
+    if (user.role !== 'ADMIN' && existingShop[0].ownerId !== user.id) {
+      throw new BadRequestException('You can only update your own shop');
     }
 
     // Update shop
-    const updatedShop = await this.prisma.shop.update({
-      where: { id },
-      data: updateData,
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            role: true,
-            is_verified: true,
-          },
-        },
-      },
-    });
+    const setClause = Object.entries(updateData)
+      .filter(([_, value]) => value !== undefined)
+      .map(([key, value]) => `"${key}" = ${typeof value === 'string' ? `'${value}'` : value}`)
+      .join(', ');
+
+    if (!setClause) {
+      return {
+        shop: existingShop[0],
+        success: true,
+        message: 'No changes to update',
+      };
+    }
+
+    const shop = await this.prisma.$queryRaw`
+      UPDATE shops
+      SET ${setClause}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id}
+      RETURNING *
+    `;
 
     return {
-      shop: updatedShop,
+      shop: shop[0],
       success: true,
       message: 'Shop updated successfully',
     };
   }
 
-  // Verify shop (admin only)
-  async verifyShop(id: number) {
+  // Toggle shop verification status (admin only)
+  async toggleVerification(id: number, isVerified: boolean) {
     // Check if shop exists
-    const shop = await this.prisma.shop.findUnique({
-      where: { id },
-    });
+    const existingShop = await this.prisma.$queryRaw<any[]>`
+      SELECT * FROM shops WHERE id = ${id}
+    `;
 
-    if (!shop) {
+    if (!existingShop || existingShop.length === 0) {
       throw new NotFoundException(`Shop with ID ${id} not found`);
     }
 
-    // Update shop verification status
-    const updatedShop = await this.prisma.shop.update({
-      where: { id },
-      data: { is_verified: true },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            role: true,
-            is_verified: true,
-          },
-        },
-      },
-    });
+    // Update verification status
+    const shop = await this.prisma.$queryRaw`
+      UPDATE shops
+      SET "is_verified" = ${isVerified}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id}
+      RETURNING *
+    `;
 
     return {
-      shop: updatedShop,
+      shop: shop[0],
       success: true,
-      message: 'Shop verified successfully',
+      message: `Shop ${isVerified ? 'verified' : 'unverified'} successfully`,
     };
   }
 
-  // Feature shop (admin only)
-  async featureShop(id: number, featured: boolean) {
+  // Toggle shop featured status (admin only)
+  async toggleFeatured(id: number, isFeatured: boolean) {
     // Check if shop exists
-    const shop = await this.prisma.shop.findUnique({
-      where: { id },
-    });
+    const existingShop = await this.prisma.$queryRaw<any[]>`
+      SELECT * FROM shops WHERE id = ${id}
+    `;
 
-    if (!shop) {
+    if (!existingShop || existingShop.length === 0) {
       throw new NotFoundException(`Shop with ID ${id} not found`);
     }
 
-    // Update shop featured status
-    const updatedShop = await this.prisma.shop.update({
-      where: { id },
-      data: { is_featured: featured },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            role: true,
-            is_verified: true,
-          },
-        },
-      },
-    });
+    // Update featured status
+    const shop = await this.prisma.$queryRaw`
+      UPDATE shops
+      SET "is_featured" = ${isFeatured}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id}
+      RETURNING *
+    `;
 
     return {
-      shop: updatedShop,
+      shop: shop[0],
       success: true,
-      message: featured ? 'Shop featured successfully' : 'Shop unfeatured successfully',
+      message: `Shop ${isFeatured ? 'featured' : 'unfeatured'} successfully`,
     };
   }
 
   // Delete shop
   async remove(id: number, user: User) {
     // Check if shop exists
-    const shop = await this.prisma.shop.findUnique({
-      where: { id },
-    });
+    const existingShop = await this.prisma.$queryRaw<any[]>`
+      SELECT * FROM shops WHERE id = ${id}
+    `;
 
-    if (!shop) {
+    if (!existingShop || existingShop.length === 0) {
       throw new NotFoundException(`Shop with ID ${id} not found`);
     }
 
-    // Check if user is the owner or an admin
-    if (shop.ownerId !== user.id && user.role !== 'ADMIN') {
-      throw new BadRequestException('You are not authorized to delete this shop');
+    // Check if user has permission to delete this shop
+    if (user.role !== 'ADMIN' && existingShop[0].ownerId !== user.id) {
+      throw new BadRequestException('You can only delete your own shop');
     }
 
     // Delete shop
-    await this.prisma.shop.delete({
-      where: { id },
-    });
-
-    // If user has no other shops, update role back to USER (if not ADMIN)
-    if (user.role !== 'ADMIN') {
-      const otherShops = await this.prisma.shop.findMany({
-        where: { ownerId: user.id },
-      });
-
-      if (otherShops.length === 0) {
-        await this.prisma.user.update({
-          where: { id: user.id },
-          data: { role: 'USER' },
-        });
-      }
-    }
+    await this.prisma.$queryRaw`
+      DELETE FROM shops WHERE id = ${id}
+    `;
 
     return {
       success: true,

@@ -23,7 +23,7 @@ export class CompletePaymentInput {
   @IsString()
   @IsIn(['success', 'failed', 'cancelled', 'pending'])
   @IsNotEmpty()
-  paymentStatus: string;
+  payment_status: string;
 
   @Field(() => GraphQLJSONScalar, { nullable: true })
   @IsOptional()

@@ -41,7 +41,7 @@ export class UserService {
 
     await this.prisma.session.create({
       data: {
-        userId,
+        userId: userId,
         cookie: token,
         expires: expiryDate,
       },
@@ -54,7 +54,7 @@ export class UserService {
 
     // Check if user with email already exists
     const existingUser = await this.prisma.user.findUnique({
-      where: { email },
+      where: { email: email },
     });
 
     if (existingUser) {
@@ -64,7 +64,7 @@ export class UserService {
     // Check if user with phone already exists (if provided)
     if (phone) {
       const userWithPhone = await this.prisma.user.findUnique({
-        where: { phone },
+        where: { phone: phone },
       });
 
       if (userWithPhone) {
@@ -81,7 +81,7 @@ export class UserService {
         email,
         password: hashedPassword,
         name,
-        phone,
+        phone: phone || null,
         role: 'USER', // Default role
       },
     });

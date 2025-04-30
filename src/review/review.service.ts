@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateReviewInput, UpdateReviewInput, ReplyReviewInput, ReviewFilterInput } from './dto/review.dto';
+import { CreateReviewInput, UpdateReviewInput, ReviewFilterInput } from './dto/review.dto';
 import { User } from '@prisma/client';
 
 @Injectable()
@@ -10,9 +10,8 @@ export class ReviewService {
   // Get all reviews with filtering options
   async findAll(filterInput: ReviewFilterInput) {
     const {
-      userId,
       productId,
-      shopId,
+      userId,
       rating,
       limit = 10,
       offset = 0,
@@ -22,32 +21,10 @@ export class ReviewService {
 
     // Build filter conditions
     const where: any = {
-      ...(userId && { userId }),
-      ...(productId && { productId }),
-      ...(rating && { rating }),
+      ...(productId && { productId: Number(productId) }),
+      ...(userId && { userId: Number(userId) }),
+      ...(rating && { rating: Number(rating) }),
     };
-
-    // If shopId is provided, find all products belonging to that shop
-    if (shopId) {
-      const products = await this.prisma.product.findMany({
-        where: { shopId },
-        select: { id: true },
-      });
-      
-      const productIds = products.map(product => product.id);
-      
-      if (productIds.length > 0) {
-        where.productId = { in: productIds };
-      } else {
-        // If the shop has no products, return empty result
-        return {
-          reviews: [],
-          count: 0,
-          success: true,
-          message: 'No reviews found for this shop',
-        };
-      }
-    }
 
     // Get total count for pagination
     const count = await this.prisma.review.count({ where });
@@ -68,19 +45,14 @@ export class ReviewService {
           select: {
             id: true,
             name: true,
+            slug: true,
             images: true,
-            shop: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
           },
         },
       },
+      orderBy: { [sortBy]: sortOrder },
       skip: offset,
       take: limit,
-      orderBy: { [sortBy]: sortOrder },
     });
 
     return {
@@ -108,13 +80,8 @@ export class ReviewService {
           select: {
             id: true,
             name: true,
+            slug: true,
             images: true,
-            shop: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
           },
         },
       },
@@ -131,13 +98,110 @@ export class ReviewService {
     };
   }
 
+  // Get reviews for a product
+  async findByProduct(productId: number, sortOrder: 'asc' | 'desc' = 'desc', limit: number = 10, offset: number = 0) {
+    // Check if product exists
+    const product = await this.prisma.product.findUnique({
+      where: { id: Number(productId) },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${productId} not found`);
+    }
+
+    // Get total count for pagination
+    const count = await this.prisma.review.count({
+      where: { productId: Number(productId) },
+    });
+
+    // Get reviews for the product
+    const reviews = await this.prisma.review.findMany({
+      where: { productId: Number(productId) },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+          },
+        },
+      },
+      orderBy: { created_at: sortOrder },
+      skip: offset,
+      take: limit,
+    });
+
+    // Calculate rating stats
+    const stats = {
+      average: product.rating || 0,
+      total: count,
+      distribution: {} as Record<number, number>,
+    };
+
+    // Count reviews by rating (1-5)
+    for (let i = 1; i <= 5; i++) {
+      stats.distribution[i] = reviews.filter(review => review.rating === i).length;
+    }
+
+    return {
+      reviews,
+      count,
+      stats,
+      success: true,
+      message: 'Product reviews fetched successfully',
+    };
+  }
+
+  // Get reviews by a user
+  async findByUser(userId: number, sortOrder: 'asc' | 'desc' = 'desc', limit: number = 10, offset: number = 0) {
+    // Check if user exists
+    const user = await this.prisma.user.findUnique({
+      where: { id: Number(userId) },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    // Get total count for pagination
+    const count = await this.prisma.review.count({
+      where: { userId: Number(userId) },
+    });
+
+    // Get reviews by the user
+    const reviews = await this.prisma.review.findMany({
+      where: { userId: Number(userId) },
+      include: {
+        product: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            images: true,
+          },
+        },
+      },
+      orderBy: { created_at: sortOrder },
+      skip: offset,
+      take: limit,
+    });
+
+    return {
+      reviews,
+      count,
+      success: true,
+      message: 'User reviews fetched successfully',
+    };
+  }
+
   // Create new review
   async create(createReviewInput: CreateReviewInput, user: User) {
     const { productId, rating, comment } = createReviewInput;
 
     // Check if product exists
     const product = await this.prisma.product.findUnique({
-      where: { id: productId },
+      where: { id: Number(productId) },
     });
 
     if (!product) {
@@ -147,20 +211,20 @@ export class ReviewService {
     // Check if user has already reviewed this product
     const existingReview = await this.prisma.review.findFirst({
       where: {
+        productId: Number(productId),
         userId: user.id,
-        productId,
       },
     });
 
     if (existingReview) {
-      throw new BadRequestException('You have already reviewed this product');
+      throw new ConflictException('You have already reviewed this product');
     }
 
     // Create review
     const review = await this.prisma.review.create({
       data: {
+        productId: Number(productId),
         userId: user.id,
-        productId,
         rating,
         comment,
       },
@@ -177,20 +241,15 @@ export class ReviewService {
           select: {
             id: true,
             name: true,
+            slug: true,
             images: true,
-            shop: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
           },
         },
       },
     });
 
     // Update product rating
-    await this.updateProductRating(productId);
+    await this.updateProductRating(Number(productId));
 
     return {
       review,
@@ -201,31 +260,29 @@ export class ReviewService {
 
   // Update review
   async update(updateReviewInput: UpdateReviewInput, user: User) {
-    const { id, ...updateData } = updateReviewInput;
+    const { id, rating, comment } = updateReviewInput;
 
     // Check if review exists
-    const review = await this.prisma.review.findUnique({
+    const existingReview = await this.prisma.review.findUnique({
       where: { id },
-      include: {
-        product: {
-          select: { id: true },
-        },
-      },
     });
 
-    if (!review) {
+    if (!existingReview) {
       throw new NotFoundException(`Review with ID ${id} not found`);
     }
 
-    // Check if user is the owner of the review
-    if (user.role !== 'ADMIN' && review.userId !== user.id) {
-      throw new ForbiddenException('You are not authorized to update this review');
+    // Check if user owns this review
+    if (existingReview.userId !== user.id && user.role !== 'ADMIN') {
+      throw new BadRequestException('You can only update your own reviews');
     }
 
     // Update review
-    const updatedReview = await this.prisma.review.update({
+    const review = await this.prisma.review.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...(rating !== undefined && { rating }),
+        ...(comment !== undefined && { comment }),
+      },
       include: {
         user: {
           select: {
@@ -239,117 +296,39 @@ export class ReviewService {
           select: {
             id: true,
             name: true,
+            slug: true,
             images: true,
-            shop: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
           },
         },
       },
     });
 
-    // Update product rating
-    await this.updateProductRating(review.productId);
+    // Update product rating if the rating was changed
+    if (rating !== undefined) {
+      await this.updateProductRating(existingReview.productId);
+    }
 
     return {
-      review: updatedReview,
+      review,
       success: true,
       message: 'Review updated successfully',
-    };
-  }
-
-  // Reply to review (for sellers and admins)
-  async replyToReview(replyReviewInput: ReplyReviewInput, user: User) {
-    const { id, reply } = replyReviewInput;
-
-    // Check if review exists
-    const review = await this.prisma.review.findUnique({
-      where: { id },
-      include: {
-        product: {
-          select: {
-            id: true,
-            shopId: true,
-            shop: {
-              select: {
-                userId: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!review) {
-      throw new NotFoundException(`Review with ID ${id} not found`);
-    }
-
-    // Check if user is admin or seller of the product
-    const isAdmin = user.role === 'ADMIN';
-    const isSeller = review.product.shop && review.product.shop.userId === user.id;
-
-    if (!isAdmin && !isSeller) {
-      throw new ForbiddenException('Only the shop owner or admin can reply to reviews');
-    }
-
-    // Update review with reply
-    const updatedReview = await this.prisma.review.update({
-      where: { id },
-      data: { reply },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-          },
-        },
-        product: {
-          select: {
-            id: true,
-            name: true,
-            images: true,
-            shop: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    return {
-      review: updatedReview,
-      success: true,
-      message: 'Reply added successfully',
     };
   }
 
   // Delete review
   async remove(id: number, user: User) {
     // Check if review exists
-    const review = await this.prisma.review.findUnique({
+    const existingReview = await this.prisma.review.findUnique({
       where: { id },
-      include: {
-        product: {
-          select: { id: true },
-        },
-      },
     });
 
-    if (!review) {
+    if (!existingReview) {
       throw new NotFoundException(`Review with ID ${id} not found`);
     }
 
-    // Check if user is admin or the owner of the review
-    if (user.role !== 'ADMIN' && review.userId !== user.id) {
-      throw new ForbiddenException('You are not authorized to delete this review');
+    // Check if user owns this review or is an admin
+    if (existingReview.userId !== user.id && user.role !== 'ADMIN') {
+      throw new BadRequestException('You can only delete your own reviews');
     }
 
     // Delete review
@@ -358,7 +337,7 @@ export class ReviewService {
     });
 
     // Update product rating
-    await this.updateProductRating(review.productId);
+    await this.updateProductRating(existingReview.productId);
 
     return {
       success: true,
@@ -368,13 +347,13 @@ export class ReviewService {
 
   // Helper method to update product rating
   private async updateProductRating(productId: number) {
-    // Get all reviews for the product
+    // Get all reviews for this product
     const reviews = await this.prisma.review.findMany({
-      where: { productId },
+      where: { productId: Number(productId) },
       select: { rating: true },
     });
 
-    // Calculate new average rating
+    // Calculate average rating
     let averageRating = 0;
     if (reviews.length > 0) {
       const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
@@ -383,7 +362,7 @@ export class ReviewService {
 
     // Update product with new average rating
     await this.prisma.product.update({
-      where: { id: productId },
+      where: { id: Number(productId) },
       data: {
         rating: averageRating,
         totalReviews: reviews.length,

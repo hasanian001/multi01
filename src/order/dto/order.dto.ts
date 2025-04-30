@@ -70,7 +70,7 @@ export class UpdateOrderInput {
   @Field(() => PaymentStatus, { nullable: true })
   @IsOptional()
   @IsEnum(PaymentStatus)
-  paymentStatus?: PaymentStatus;
+  payment_status?: PaymentStatus;
 
   @Field({ nullable: true })
   @IsOptional()
@@ -110,7 +110,7 @@ export class OrderFilterInput {
   @Field(() => PaymentStatus, { nullable: true })
   @IsOptional()
   @IsEnum(PaymentStatus)
-  paymentStatus?: PaymentStatus;
+  payment_status?: PaymentStatus;
 
   @Field(() => PaymentMethod, { nullable: true })
   @IsOptional()

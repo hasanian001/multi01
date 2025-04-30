@@ -109,7 +109,7 @@ export class Order {
   status: OrderStatus;
 
   @Field(() => PaymentStatus)
-  paymentStatus: PaymentStatus;
+  payment_status: PaymentStatus;
 
   @Field(() => PaymentMethod)
   paymentMethod: PaymentMethod;

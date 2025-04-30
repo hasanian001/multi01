@@ -41,7 +41,20 @@ export class ProductResolver {
     @Args('createProductInput') createProductInput: CreateProductInput,
     @CurrentUser() user,
   ): Promise<ProductResponse> {
-    return this.productService.create(createProductInput, user);
+    const result = await this.productService.create(createProductInput, user);
+    // Convert the product object to the expected Product type
+    return {
+      product: {
+        ...result.product,
+        slug: result.product.slug || '',
+        shopId: result.product.shopId,
+        stock: result.product.stock || 0,
+        is_featured: result.product.is_featured || false,
+        is_published: result.product.is_published || true,
+      },
+      success: result.success,
+      message: result.message
+    };
   }
 
   @Mutation(() => ProductResponse)
@@ -51,7 +64,20 @@ export class ProductResolver {
     @Args('updateProductInput') updateProductInput: UpdateProductInput,
     @CurrentUser() user,
   ): Promise<ProductResponse> {
-    return this.productService.update(updateProductInput, user);
+    const result = await this.productService.update(updateProductInput, user);
+    // Convert the product object to the expected Product type
+    return {
+      product: {
+        ...result.product,
+        slug: result.product.slug || '',
+        shopId: result.product.shopId,
+        stock: result.product.stock || 0,
+        is_featured: result.product.is_featured || false,
+        is_published: result.product.is_published || true,
+      },
+      success: result.success,
+      message: result.message
+    };
   }
 
   @Mutation(() => ProductResponse)
@@ -62,7 +88,20 @@ export class ProductResolver {
     @Args('featured', { type: () => Boolean }) featured: boolean,
     @CurrentUser() user,
   ): Promise<ProductResponse> {
-    return this.productService.toggleFeatured(id, featured, user);
+    const result = await this.productService.toggleFeatured(id, featured, user);
+    // Convert the product object to the expected Product type
+    return {
+      product: {
+        ...result.product,
+        slug: result.product.slug || '',
+        shopId: result.product.shopId,
+        stock: result.product.stock || 0,
+        is_featured: result.product.is_featured || false,
+        is_published: result.product.is_published || true,
+      },
+      success: result.success,
+      message: result.message
+    };
   }
 
   @Mutation(() => ProductResponse)
@@ -73,7 +112,20 @@ export class ProductResolver {
     @Args('published', { type: () => Boolean }) published: boolean,
     @CurrentUser() user,
   ): Promise<ProductResponse> {
-    return this.productService.togglePublished(id, published, user);
+    const result = await this.productService.togglePublished(id, published, user);
+    // Convert the product object to the expected Product type
+    return {
+      product: {
+        ...result.product,
+        slug: result.product.slug || '',
+        shopId: result.product.shopId,
+        stock: result.product.stock || 0,
+        is_featured: result.product.is_featured || false,
+        is_published: result.product.is_published || true,
+      },
+      success: result.success,
+      message: result.message
+    };
   }
 
   @Mutation(() => ProductResponse)
@@ -83,6 +135,19 @@ export class ProductResolver {
     @Args('id', { type: () => Int }) id: number,
     @CurrentUser() user,
   ): Promise<ProductResponse> {
-    return this.productService.remove(id, user);
+    const result = await this.productService.remove(id, user);
+    // Convert the product object to the expected Product type
+    return {
+      product: {
+        ...result.product,
+        slug: result.product.slug || '',
+        shopId: result.product.shopId,
+        stock: result.product.stock || 0,
+        is_featured: result.product.is_featured || false,
+        is_published: result.product.is_published || true,
+      },
+      success: result.success,
+      message: result.message
+    };
   }
 }
