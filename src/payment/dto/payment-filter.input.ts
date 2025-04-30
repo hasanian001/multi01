@@ -1,5 +1,5 @@
 import { Field, InputType, Int, Float } from '@nestjs/graphql';
-import { PaymentProvider, PaymentTransactionStatus } from '@prisma/client';
+import { PaymentProvider, PaymentTransactionStatus } from '../models/payment-transaction.model';
 
 @InputType()
 export class PaymentFilterInput {

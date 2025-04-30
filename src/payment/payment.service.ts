@@ -1,12 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client';
 import { 
   PaymentProvider, 
-  PaymentTransaction, 
-  PaymentTransactionStatus, 
-  PaymentRefund,
-  Prisma
-} from '@prisma/client';
+  PaymentTransactionStatus 
+} from './models/payment-transaction.model';
+import type { PaymentTransaction, PaymentRefund } from './models/payment-transaction.model';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentProviderFactory } from './payment-provider.factory';
 import { PaymentFilterInput } from './dto/payment-filter.input';
@@ -15,7 +14,7 @@ import { CompletePaymentInput } from './dto/complete-payment.input';
 import { RefundPaymentInput } from './dto/refund-payment.input';
 import { PaymentStatusInput } from './dto/payment-status.input';
 import { v4 as uuidv4 } from 'uuid';
-import { User } from '@prisma/client';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class PaymentService {
@@ -322,7 +321,7 @@ export class PaymentService {
         await this.prisma.order.update({
           where: { id: updatedPayment.orderId },
           data: {
-            paymentStatus: 'PAID',
+            payment_status: 'PAID',
             // You might also want to update the order status based on your business logic
             // status: OrderStatus.PROCESSING,
           },
@@ -508,7 +507,7 @@ export class PaymentService {
           await this.prisma.order.update({
             where: { id: paymentTransaction.orderId },
             data: {
-              paymentStatus: 'PAID',
+              payment_status: 'PAID',
               // You might also want to update the order status based on your business logic
               // status: OrderStatus.PROCESSING,
             },

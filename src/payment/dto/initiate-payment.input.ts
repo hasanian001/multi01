@@ -1,5 +1,6 @@
-import { Field, Float, InputType, Int, GraphQLJSON } from '@nestjs/graphql';
-import { PaymentProvider } from '@prisma/client';
+import { Field, Float, InputType, Int } from '@nestjs/graphql';
+import { GraphQLJSONObject } from 'graphql-type-json';
+import { PaymentProvider } from '../models/payment-transaction.model';
 import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUrl, Min } from 'class-validator';
 
 @InputType()
@@ -43,7 +44,7 @@ export class InitiatePaymentInput {
   @IsOptional()
   cancelUrl?: string;
 
-  @Field(() => GraphQLJSON, { nullable: true })
+  @Field(() => GraphQLJSONObject, { nullable: true })
   @IsOptional()
   metadata?: any;
 }

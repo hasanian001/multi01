@@ -1,4 +1,4 @@
-import { PaymentTransaction } from '@prisma/client';
+import { PaymentTransaction, PaymentTransactionStatus } from '../models/payment-transaction.model';
 
 export interface PaymentIntentResult {
   success: boolean;
@@ -19,7 +19,7 @@ export interface PaymentRefundResult {
 
 export interface PaymentStatusResult {
   success: boolean;
-  status: string;
+  status: PaymentTransactionStatus;
   message: string;
   paymentDetails?: any;
   error?: any;

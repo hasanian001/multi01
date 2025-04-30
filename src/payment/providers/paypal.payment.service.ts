@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PaymentTransaction, PaymentTransactionStatus } from '@prisma/client';
+import type { PaymentTransaction } from '../models/payment-transaction.model';
+import { PaymentTransactionStatus } from '../models/payment-transaction.model';
 import { 
   IPaymentProviderService, 
   PaymentIntentResult,

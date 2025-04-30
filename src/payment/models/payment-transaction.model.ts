@@ -1,5 +1,31 @@
-import { Field, Float, GraphQLISODateTime, ID, Int, ObjectType } from '@nestjs/graphql';
-import { PaymentProvider, PaymentTransactionStatus } from '@prisma/client';
+import { Field, Float, GraphQLISODateTime, ID, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { GraphQLJSONScalar } from '../../common/scalars/json.scalar';
+
+export enum PaymentProvider {
+  STRIPE = 'STRIPE',
+  PAYPAL = 'PAYPAL',
+  BANK_TRANSFER = 'BANK_TRANSFER',
+  SSLCOMMERZ = 'SSLCOMMERZ',
+  CASH_ON_DELIVERY = 'CASH_ON_DELIVERY'
+}
+
+export enum PaymentTransactionStatus {
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED',
+  PARTIALLY_REFUNDED = 'PARTIALLY_REFUNDED',
+  CANCELLED = 'CANCELLED'
+}
+
+registerEnumType(PaymentProvider, {
+  name: 'PaymentProvider',
+});
+
+registerEnumType(PaymentTransactionStatus, {
+  name: 'PaymentTransactionStatus',
+});
 
 @ObjectType()
 export class PaymentTransaction {
@@ -17,6 +43,9 @@ export class PaymentTransaction {
 
   @Field(() => Float)
   amount: number;
+
+  @Field(() => Float, { nullable: true })
+  fee?: number;
 
   @Field(() => String, { nullable: true })
   currency?: string;
@@ -45,7 +74,10 @@ export class PaymentTransaction {
   @Field(() => String, { nullable: true })
   errorMessage?: string;
 
-  @Field(() => GraphQLJSON, { nullable: true })
+  @Field(() => String, { nullable: true })
+  billingAddress?: string;
+
+  @Field(() => GraphQLJSONScalar, { nullable: true })
   metadata?: any;
 
   @Field(() => GraphQLISODateTime)

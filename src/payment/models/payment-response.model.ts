@@ -1,5 +1,6 @@
-import { Field, Int, ObjectType, GraphQLJSON } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { PaymentTransaction } from './payment-transaction.model';
+import { GraphQLJSONScalar } from '../../common/scalars/json.scalar';
 
 @ObjectType()
 export class PaginationInfo {
@@ -93,6 +94,6 @@ export class PaymentStatusResponse {
   @Field(() => String)
   message: string;
 
-  @Field(() => GraphQLJSON, { nullable: true })
+  @Field(() => GraphQLJSONScalar, { nullable: true })
   details?: any;
 }

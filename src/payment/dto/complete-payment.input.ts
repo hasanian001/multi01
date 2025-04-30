@@ -1,5 +1,6 @@
-import { Field, InputType, GraphQLJSON } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 import { IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { GraphQLJSONScalar } from '../../common/scalars/json.scalar';
 
 @InputType()
 export class CompletePaymentInput {
@@ -24,7 +25,7 @@ export class CompletePaymentInput {
   @IsNotEmpty()
   paymentStatus: string;
 
-  @Field(() => GraphQLJSON, { nullable: true })
+  @Field(() => GraphQLJSONScalar, { nullable: true })
   @IsOptional()
   metadata?: any;
 }

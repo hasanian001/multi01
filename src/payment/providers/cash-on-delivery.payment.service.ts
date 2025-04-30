@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PaymentTransaction, PaymentTransactionStatus } from '@prisma/client';
+import type { PaymentTransaction } from '../models/payment-transaction.model';
+import { PaymentTransactionStatus } from '../models/payment-transaction.model';
 import { 
   IPaymentProviderService, 
   PaymentIntentResult,
@@ -80,7 +81,10 @@ export class CashOnDeliveryPaymentService implements IPaymentProviderService {
       // This would be set by an external delivery tracking system or manually by staff
       
       // Extract delivery status from transaction metadata if available
-      const deliveryStatus = paymentTransaction.metadata?.deliveryStatus || 'Pending';
+      const metadataObj = paymentTransaction.metadata ? 
+        (typeof paymentTransaction.metadata === 'string' ? 
+          JSON.parse(paymentTransaction.metadata) : paymentTransaction.metadata) : {};
+      const deliveryStatus = metadataObj.deliveryStatus || 'Pending';
       
       return {
         success: true,

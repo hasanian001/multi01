@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PaymentProvider } from '@prisma/client';
+import { PaymentProvider } from './models/payment-transaction.model';
 import { StripePaymentService } from './providers/stripe.payment.service';
 import { PayPalPaymentService } from './providers/paypal.payment.service';
 import { SSLCommerzPaymentService } from './providers/sslcommerz.payment.service';
