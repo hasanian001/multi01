@@ -1,226 +1,427 @@
-src/prisma/prisma-extensions.ts:46:27 - error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.      
+src/prisma/prisma-extensions.ts:48:7 - error TS2353: Object literal may only specify known properties, and 'paymentTransaction' does not exist in type 'DynamicModelExtensionArgs<{ attribute?: unknown; user?: unknown; session?: unknown; seller?: unknown; points?: unknown; userPoints?: unknown; category?: unknown; mainCategory?: unknown; subCategory?: unknown; brand?: unknown; product?: unknown; tag?: unknown; flash?: unknown; meta?: unknown; $allModels?: unknown; ad...'.
+48       paymentTransaction: {
+         ~~~~~~~~~~~~~~~~~~
 
-46               params.push(where.status);
-                             ~~~~~~~~~~~~
+src/product/product.resolver.ts:25:30 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; ... 5 more ...; totalRating: number; }; ... 38 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-src/prisma/prisma-extensions.ts:49:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.   
+25       shopId: typeof product.shopId === 'string' ? parseInt(product.shopId, 10) : product.shopId,
+                                ~~~~~~
 
-49               whereConditions.push(`"provider" = $${params.length + 1}`);
-                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  src/product/product.service.ts:81:7
+    81       shop: product.seller,
+             ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-src/prisma/prisma-extensions.ts:50:27 - error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.      
+src/product/product.resolver.ts:25:69 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; ... 5 more ...; totalRating: number; }; ... 38 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-50               params.push(where.provider);
-                             ~~~~~~~~~~~~~~
+25       shopId: typeof product.shopId === 'string' ? parseInt(product.shopId, 10) : product.shopId,
+                                                                       ~~~~~~
 
-src/prisma/prisma-extensions.ts:62:35 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+  src/product/product.service.ts:81:7
+    81       shop: product.seller,
+             ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-62               orderByClauses.push(`"${field}" ${direction === 'desc' ? 'DESC' : 'ASC'}`);
-                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/product/product.resolver.ts:25:91 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; ... 5 more ...; totalRating: number; }; ... 38 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-src/prisma/prisma-extensions.ts:88:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.   
+25       shopId: typeof product.shopId === 'string' ? parseInt(product.shopId, 10) : product.shopId,
+                                                                                             ~~~~~~
 
-88               whereConditions.push(`"userId" = $${params.length + 1}`);
-                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  src/product/product.service.ts:81:7
+    81       shop: product.seller,
+             ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-src/prisma/prisma-extensions.ts:89:27 - error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.      
+src/product/product.resolver.ts:35:7 - error TS2322: Type '{ id: number; shopId: any; categoryId: number; brandId: number; slug: string; stock: string | number; is_featured: any; is_published: any; shop: { id: string; phone: string; is_verified: boolean; is_banned: boolean; ... 11 more ...; totalRating: number; }; 
+... 32 more ...; deleted_at: Date | null; }[]' is not assignable to type 'Product[]'.
+  Type '{ id: number; shopId: any; categoryId: number; brandId: number; slug: string; stock: string | number; is_featured: any; is_published: any; shop: { id: string; phone: string; is_verified: boolean; ... 12 more ...; totalRating: number; }; ... 32 more ...; deleted_at: Date | null; }' is not assignable to type 
+'Product'.
+    Types of property 'shop' are incompatible.
+      Type '{ id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: 
+string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }' is missing the following properties from type 'Shop': name, ownerId, is_featured
 
-89               params.push(where.userId);
-                             ~~~~~~~~~~~~
+35       products,
+         ~~~~~~~~
 
-src/prisma/prisma-extensions.ts:92:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.   
+  src/product/entities/product.entity.ts:84:3
+    84   products: Product[];
+         ~~~~~~~~
+    The expected type comes from property 'products' which is declared here on type 'ProductsResponse'
 
-92               whereConditions.push(`"orderId" = $${params.length + 1}`);
-                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/product/product.resolver.ts:60:37 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; ... 5 more ...; totalRating: number; }; ... 38 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-src/prisma/prisma-extensions.ts:93:27 - error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.      
+60       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                       ~~~~~~
 
-93               params.push(where.orderId);
-                             ~~~~~~~~~~~~~
+  src/product/product.service.ts:114:7
+    114       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-src/prisma/prisma-extensions.ts:96:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.   
+src/product/product.resolver.ts:60:83 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; ... 5 more ...; totalRating: number; }; ... 38 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-96               whereConditions.push(`"status" = $${params.length + 1}`);
-                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+60       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                                                                     ~~~~~~
 
-src/prisma/prisma-extensions.ts:97:27 - error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.      
+  src/product/product.service.ts:114:7
+    114       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-97               params.push(where.status);
-                             ~~~~~~~~~~~~
+src/product/product.resolver.ts:60:112 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; ... 5 more ...; totalRating: number; }; ... 38 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-src/prisma/prisma-extensions.ts:100:36 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+60       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                                                                                                  ~~~~~~
 
-100               whereConditions.push(`"provider" = $${params.length + 1}`);
-                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  src/product/product.service.ts:114:7
+    114       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-src/prisma/prisma-extensions.ts:101:27 - error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.     
+src/product/product.resolver.ts:70:7 - error TS2322: Type '{ id: number; shopId: any; categoryId: number; brandId: number; slug: string; stock: string | number; is_featured: any; is_published: any; shop: { id: string; phone: string; is_verified: boolean; ... 12 more ...; totalRating: number; }; ... 32 more ...; deleted_at: Date | null; }' is not assignable to type 'Product'.
+  Types of property 'shop' are incompatible.
+    Type '{ id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }' is missing the following properties from type 'Shop': name, ownerId, is_featured
 
-101               params.push(where.provider);
-                              ~~~~~~~~~~~~~~
+70       product,
+         ~~~~~~~
 
-src/prisma/prisma-extensions.ts:110:25 - error TS18046: 'result' is of type 'unknown'.
+  src/product/entities/product.entity.ts:72:3
+    72   product?: Product | null;
+         ~~~~~~~
+    The expected type comes from property 'product' which is declared here on type 'ProductResponse'
 
-110           return Number(result[0].count);
-                            ~~~~~~
+src/product/product.resolver.ts:87:30 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; ... 5 more ...; totalRating: number; }; ... 38 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-src/prisma/prisma-extensions.ts:125:18 - error TS18046: 'result' is of type 'unknown'.
+87       shopId: typeof product.shopId === 'string' ? parseInt(product.shopId, 10) : product.shopId,
+                                ~~~~~~
 
-125           return result[0];
-                     ~~~~~~
+  src/product/product.service.ts:188:7
+    188       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-src/prisma/prisma-extensions.ts:160:18 - error TS18046: 'result' is of type 'unknown'.
+src/product/product.resolver.ts:87:69 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; ... 5 more ...; totalRating: number; }; ... 38 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-160           return result[0];
-                     ~~~~~~
+87       shopId: typeof product.shopId === 'string' ? parseInt(product.shopId, 10) : product.shopId,
+                                                                       ~~~~~~
 
-src/prisma/prisma-extensions.ts:179:18 - error TS18046: 'result' is of type 'unknown'.
+  src/product/product.service.ts:188:7
+    188       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-179           return result[0];
-                     ~~~~~~
+src/product/product.resolver.ts:87:91 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; ... 5 more ...; totalRating: number; }; ... 38 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-src/prisma/prisma-extensions.ts:209:18 - error TS18046: 'result' is of type 'unknown'.
+87       shopId: typeof product.shopId === 'string' ? parseInt(product.shopId, 10) : product.shopId,
+                                                                                             ~~~~~~
 
-209           return result[0];
-                     ~~~~~~
+  src/product/product.service.ts:188:7
+    188       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-src/prisma/prisma-extensions.ts:223:25 - error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.     
+src/product/product.resolver.ts:97:7 - error TS2322: Type '{ id: number; shopId: any; categoryId: number; brandId: number; slug: string; stock: string | number; is_featured: any; is_published: any; shop: { id: string; phone: string; is_verified: boolean; is_banned: boolean; ... 11 more ...; totalRating: number; }; 
+... 32 more ...; deleted_at: Date | null; }[]' is not assignable to type 'Product[]'.
+  Type '{ id: number; shopId: any; categoryId: number; brandId: number; slug: string; stock: string | number; is_featured: any; is_published: any; shop: { id: string; phone: string; is_verified: boolean; ... 12 more ...; totalRating: number; }; ... 32 more ...; deleted_at: Date | null; }' is not assignable to type 
+'Product'.
+    Types of property 'shop' are incompatible.
+      Type '{ id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: 
+string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }' is missing the following properties from type 'Shop': name, ownerId, is_featured
 
-223             values.push(where.paymentTransactionId);
-                            ~~~~~~~~~~~~~~~~~~~~~~~~~~
+97       products,
+         ~~~~~~~~
 
-src/prisma/prisma-extensions.ts:238:32 - error TS18046: 'result' is of type 'unknown'.
+  src/product/entities/product.entity.ts:84:3
+    84   products: Product[];
+         ~~~~~~~~
+    The expected type comes from property 'products' which is declared here on type 'ProductsResponse'
 
-238                 amount: Number(result[0].result) || 0
-                                   ~~~~~~
+src/product/product.resolver.ts:125:37 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: any; is_featured: any; is_published: any; stock: string | number; name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; ... 26 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-src/prisma/prisma-extensions.ts:244:28 - error TS18046: 'result' is of type 'unknown'.
+125       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                        ~~~~~~
 
-244             _count: Number(result[0].result)
-                               ~~~~~~
+  src/product/product.service.ts:282:7
+    282       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-src/product/product.resolver.ts:19:5 - error TS2322: Type '{ products: { name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }[]; count: number; success: boolean; message: string; }' is not assignable to type 'ProductsResponse'.
-  Types of property 'products' are incompatible.
-    Type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }[]' is not assignable to type 'Product[]'.
-      Type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }' is missing 
-the following properties from type 'Product': slug, shopId, stock, is_featured, is_published
+src/product/product.resolver.ts:125:83 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: any; is_featured: any; is_published: any; stock: string | number; name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; ... 26 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-19     return this.productService.findAll(filterInput || {});
-       ~~~~~~
+125       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                                                                      ~~~~~~
 
-src/product/product.resolver.ts:26:5 - error TS2322: Type '{ product: { name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }; success: boolean; message: string; }' is not assignable to type 'ProductResponse'. 
-  Types of property 'product' are incompatible.
-    Type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }' is missing the following properties from type 'Product': slug, shopId, stock, is_featured, is_published
+  src/product/product.service.ts:282:7
+    282       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-26     return this.productService.findOne(id);
-       ~~~~~~
+src/product/product.resolver.ts:125:112 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: any; is_featured: any; is_published: any; stock: string | number; name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; ... 26 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-src/product/product.resolver.ts:34:5 - error TS2322: Type '{ products: { name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }[]; count: number; success: boolean; message: string; }' is not assignable to type 'ProductsResponse'.
-  Types of property 'products' are incompatible.
-    Type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }[]' is not assignable to type 'Product[]'.
-      Type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }' is missing 
-the following properties from type 'Product': slug, shopId, stock, is_featured, is_published
+125       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                                                                                                   ~~~~~~
 
-34     return this.productService.findByShop(shopId, filterInput || {});
-       ~~~~~~
+  src/product/product.service.ts:282:7
+    282       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-src/product/product.resolver.ts:44:5 - error TS2322: Type '{ product: { name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }; success: boolean; message: string; }' is not assignable to type 'ProductResponse'. 
-  Types of property 'product' are incompatible.
-    Type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }' is missing the following properties from type 'Product': slug, shopId, stock, is_featured, is_published
+src/product/product.resolver.ts:135:7 - error TS2322: Type '{ id: number; shopId: any; categoryId: number; brandId: number; slug: string; stock: string | number; is_featured: any; is_published: any; shop: any; name: string; updated_at: Date; created_at: Date; ... 26 more ...; deleted_at: Date | null; }' is not assignable to type 'Product'.
+  Types of property 'price' are incompatible.
+    Type 'string' is not assignable to type 'number'.
 
-44     return this.productService.create(createProductInput, user);
-       ~~~~~~
+135       product,
+          ~~~~~~~
 
-src/product/product.resolver.ts:54:5 - error TS2322: Type '{ product: { name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }; success: boolean; message: string; }' is not assignable to type 'ProductResponse'. 
-  Types of property 'product' are incompatible.
-    Type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }' is missing the following properties from type 'Product': slug, shopId, stock, is_featured, is_published
+  src/product/entities/product.entity.ts:72:3
+    72   product?: Product | null;
+         ~~~~~~~
+    The expected type comes from property 'product' which is declared here on type 'ProductResponse'
 
-54     return this.productService.update(updateProductInput, user);
-       ~~~~~~
+src/product/product.resolver.ts:162:37 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: any; is_featured: any; is_published: any; stock: string | number; name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; ... 26 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-src/product/product.resolver.ts:65:5 - error TS2322: Type '{ product: { name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }; success: boolean; message: string; }' is not assignable to type 'ProductResponse'. 
-  Types of property 'product' are incompatible.
-    Type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }' is missing the following properties from type 'Product': slug, shopId, stock, is_featured, is_published
+162       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                        ~~~~~~
 
-65     return this.productService.toggleFeatured(id, featured, user);
-       ~~~~~~
+  src/product/product.service.ts:334:7
+    334       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-src/product/product.resolver.ts:76:5 - error TS2322: Type '{ product: { name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }; success: boolean; message: string; }' is not assignable to type 'ProductResponse'. 
-  Types of property 'product' are incompatible.
-    Type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }' is missing the following properties from type 'Product': slug, shopId, stock, is_featured, is_published
+src/product/product.resolver.ts:162:83 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: any; is_featured: any; is_published: any; stock: string | number; name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; ... 26 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-76     return this.productService.togglePublished(id, published, user);
-       ~~~~~~
+162       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                                                                      ~~~~~~
 
-src/product/product.service.ts:55:9 - error TS2353: Object literal may only specify known properties, and 'shop' does not exist in type 'ProductInclude<DefaultArgs>'.
+  src/product/product.service.ts:334:7
+    334       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-55         shop: {
-           ~~~~
+src/product/product.resolver.ts:162:112 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: any; is_featured: any; is_published: any; stock: string | number; name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; ... 26 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-src/product/product.service.ts:80:16 - error TS2322: Type 'number' is not assignable to type 'string'.
+162       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                                                                                                   ~~~~~~
 
-80       where: { id },
-                  ~~
+  src/product/product.service.ts:334:7
+    334       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-  node_modules/.prisma/client/index.d.ts:49109:5
-    49109     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'ProductWhereUniqueInput'
+src/product/product.resolver.ts:172:7 - error TS2322: Type '{ id: number; shopId: any; categoryId: number; brandId: number; slug: string; stock: string | number; is_featured: any; is_published: any; shop: any; name: string; updated_at: Date; created_at: Date; ... 26 more ...; deleted_at: Date | null; }' is not assignable to type 'Product'.
+  Types of property 'price' are incompatible.
+    Type 'string' is not assignable to type 'number'.
 
-src/product/product.service.ts:82:9 - error TS2353: Object literal may only specify known properties, and 'shop' does not exist in type 'ProductInclude<DefaultArgs>'.
+172       product,
+          ~~~~~~~
 
-82         shop: {
-           ~~~~
+  src/product/entities/product.entity.ts:72:3
+    72   product?: Product | null;
+         ~~~~~~~
+    The expected type comes from property 'product' which is declared here on type 'ProductResponse'
 
-  node_modules/.prisma/client/index.d.ts:12446:5
-    12446     include?: ProductInclude<ExtArgs> | null
-              ~~~~~~~
-    The expected type comes from property 'include' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; where: ProductWhereUniqueInput; }'
+src/product/product.resolver.ts:200:37 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: any; is_featured: boolean; is_published: any; stock: string | number; name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; ... 26 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-src/product/product.service.ts:147:9 - error TS2353: Object literal may only specify known properties, and 'shop' does not exist in type 'ProductInclude<DefaultArgs>'.
+200       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                        ~~~~~~
 
-147         shop: {
-            ~~~~
+  src/product/product.service.ts:428:7
+    428       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-src/product/product.service.ts:174:36 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
+src/product/product.resolver.ts:200:83 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: any; is_featured: boolean; is_published: any; stock: string | number; name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; ... 26 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-174     const shop = await this.prisma.shop.findUnique({
-                                       ~~~~
+200       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                                                                      ~~~~~~
 
-src/product/product.service.ts:191:16 - error TS2353: Object literal may only specify known properties, and 'slug' does not exist 
-in type 'ProductWhereUniqueInput'.
+  src/product/product.service.ts:428:7
+    428       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-191       where: { slug },
-                   ~~~~
+src/product/product.resolver.ts:200:112 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: any; is_featured: boolean; is_published: any; stock: string | number; name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; ... 26 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
 
-  node_modules/.prisma/client/index.d.ts:12450:5
-    12450     where: ProductWhereUniqueInput
-              ~~~~~
-    The expected type comes from property 'where' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; where: ProductWhereUniqueInput; }'
+200       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                                                                                                   ~~~~~~
 
-src/product/product.service.ts:202:9 - error TS2353: Object literal may only specify known properties, and 'slug' does not exist in type 'Without<ProductUncheckedCreateInput, ProductCreateInput> & ProductCreateInput'.
+  src/product/product.service.ts:428:7
+    428       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
 
-202         slug,
-            ~~~~
+src/product/product.resolver.ts:210:7 - error TS2322: Type '{ id: number; shopId: any; categoryId: number; brandId: number; slug: string; stock: string | number; is_featured: boolean; is_published: any; shop: any; name: string; updated_at: Date; created_at: Date; ... 26 more ...; deleted_at: Date | null; }' is not 
+assignable to type 'Product'.
+  Types of property 'price' are incompatible.
+    Type 'string' is not assignable to type 'number'.
+
+210       product,
+          ~~~~~~~
+
+  src/product/entities/product.entity.ts:72:3
+    72   product?: Product | null;
+         ~~~~~~~
+    The expected type comes from property 'product' which is declared here on type 'ProductResponse'
+
+src/product/product.resolver.ts:238:37 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: any; is_featured: any; is_published: boolean; stock: string | number; name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; ... 26 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
+
+238       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                        ~~~~~~
+
+  src/product/product.service.ts:477:7
+    477       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
+
+src/product/product.resolver.ts:238:83 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: any; is_featured: any; is_published: boolean; stock: string | number; name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; ... 26 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
+
+238       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                                                                      ~~~~~~
+
+  src/product/product.service.ts:477:7
+    477       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
+
+src/product/product.resolver.ts:238:112 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: any; is_featured: any; is_published: boolean; stock: string | number; name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; ... 26 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
+
+238       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                                                                                                   ~~~~~~
+
+  src/product/product.service.ts:477:7
+    477       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
+
+src/product/product.resolver.ts:248:7 - error TS2322: Type '{ id: number; shopId: any; categoryId: number; brandId: number; slug: string; stock: string | number; is_featured: any; is_published: boolean; shop: any; name: string; updated_at: Date; created_at: Date; ... 26 more ...; deleted_at: Date | null; }' is not 
+assignable to type 'Product'.
+  Types of property 'price' are incompatible.
+    Type 'string' is not assignable to type 'number'.
+
+248       product,
+          ~~~~~~~
+
+  src/product/entities/product.entity.ts:72:3
+    72   product?: Product | null;
+         ~~~~~~~
+    The expected type comes from property 'product' which is declared here on type 'ProductResponse'
+
+src/product/product.resolver.ts:275:37 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; ... 5 more ...; totalRating: number; }; ... 38 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
+
+275       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                        ~~~~~~
+
+  src/product/product.service.ts:531:7
+    531       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
+
+src/product/product.resolver.ts:275:83 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; ... 5 more ...; totalRating: number; }; ... 38 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
+
+275       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                                                                      ~~~~~~
+
+  src/product/product.service.ts:531:7
+    531       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
+
+src/product/product.resolver.ts:275:112 - error TS2551: Property 'shopId' does not exist on type '{ slug: string; shop: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; ... 5 more ...; totalRating: number; }; ... 38 more ...; deleted_at: Date | null; }'. Did you mean 'shop'?
+
+275       shopId: typeof result.product.shopId === 'string' ? parseInt(result.product.shopId, 10) : result.product.shopId,
+                                                                                                                   ~~~~~~
+
+  src/product/product.service.ts:531:7
+    531       shop: product.seller,
+              ~~~~~~~~~~~~~~~~~~~~
+    'shop' is declared here.
+
+src/product/product.resolver.ts:285:7 - error TS2322: Type '{ id: number; shopId: any; categoryId: number; brandId: number; slug: string; stock: string | number; is_featured: any; is_published: any; shop: { id: string; phone: string; is_verified: boolean; ... 12 more ...; totalRating: number; }; ... 32 more ...; deleted_at: Date | null; }' is not assignable to type 'Product'.
+  Types of property 'shop' are incompatible.
+    Type '{ id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }' is missing the following properties from type 'Shop': name, ownerId, is_featured
+
+285       product,
+          ~~~~~~~
+
+  src/product/entities/product.entity.ts:72:3
+    72   product?: Product | null;
+         ~~~~~~~
+    The expected type comes from property 'product' which is declared here on type 'ProductResponse'
+
+src/product/product.service.ts:82:28 - error TS2339: Property 'featured' does not exist on type '{ seller: { id: string; phone: string; is_verified: boolean; 
+is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }'.
+
+82       is_featured: product.featured || false,
+                              ~~~~~~~~
+
+src/product/product.service.ts:83:29 - error TS2339: Property 'published' does not exist on type '{ seller: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }'.
+
+83       is_published: product.published || false,
+                               ~~~~~~~~~
+
+src/product/product.service.ts:115:28 - error TS2339: Property 'featured' does not exist on type '{ seller: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }'.
+
+115       is_featured: product.featured || false,
+                               ~~~~~~~~
+
+src/product/product.service.ts:116:29 - error TS2339: Property 'published' does not exist on type '{ seller: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }'.
+
+116       is_published: product.published || false,
+                                ~~~~~~~~~
+
+src/product/product.service.ts:189:28 - error TS2339: Property 'featured' does not exist on type '{ seller: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }'.
+
+189       is_featured: product.featured || false,
+                               ~~~~~~~~
+
+src/product/product.service.ts:190:29 - error TS2339: Property 'published' does not exist on type '{ seller: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }'.
+
+190       is_published: product.published || false,
+                                ~~~~~~~~~
+
+src/product/product.service.ts:232:28 - error TS2339: Property 'featured' does not exist on type '{ seller: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }'.
+
+232       is_featured: product.featured || false,
+                               ~~~~~~~~
+
+src/product/product.service.ts:233:29 - error TS2339: Property 'published' does not exist on type '{ seller: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }'.
+
+233       is_published: product.published || false,
+                                ~~~~~~~~~
+
+src/product/product.service.ts:252:38 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
+
+252       const shop = await this.prisma.shop.findUnique({
+                                         ~~~~
+
+src/product/product.service.ts:268:9 - error TS2353: Object literal may only specify known properties, and 'shopId' does not exist in type 'Without<ProductUncheckedCreateInput, ProductCreateInput> & ProductCreateInput'.
+
+268         shopId,
+            ~~~~~~
 
   node_modules/.prisma/client/index.d.ts:12645:5
     12645     data: XOR<ProductCreateInput, ProductUncheckedCreateInput>
               ~~~~
     The expected type comes from property 'data' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; data: (Without<...> & ProductUncheckedCreateInput) | (Without<...> & ProductCreateInput); }'
 
-src/product/product.service.ts:205:9 - error TS2353: Object literal may only specify known properties, and 'shop' does not exist in type 'ProductInclude<DefaultArgs>'.
+src/product/product.service.ts:282:21 - error TS2551: Property 'seller' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'. Did you mean 'sellerId'?
 
-205         shop: {
-            ~~~~
+282       shop: product.seller,
+                        ~~~~~~
 
-  node_modules/.prisma/client/index.d.ts:12641:5
-    12641     include?: ProductInclude<ExtArgs> | null
-              ~~~~~~~
-    The expected type comes from property 'include' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; data: 
-(Without<...> & ProductUncheckedCreateInput) | (Without<...> & ProductCreateInput); }'
+src/product/product.service.ts:283:28 - error TS2339: Property 'featured' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'.
 
-src/product/product.service.ts:229:16 - error TS2322: Type 'number' is not assignable to type 'string'.
+283       is_featured: product.featured || false,
+                               ~~~~~~~~
 
-229       where: { id },
+src/product/product.service.ts:284:29 - error TS2339: Property 'published' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'.
+
+284       is_published: product.published || false,
+                                ~~~~~~~~~
+
+src/product/product.service.ts:301:16 - error TS2322: Type 'number' is not assignable to type 'string'.
+
+301       where: { id },
                    ~~
 
   node_modules/.prisma/client/index.d.ts:49109:5
@@ -228,29 +429,9 @@ src/product/product.service.ts:229:16 - error TS2322: Type 'number' is not assig
               ~~
     The expected type comes from property 'id' which is declared here on type 'ProductWhereUniqueInput'
 
-src/product/product.service.ts:231:9 - error TS2353: Object literal may only specify known properties, and 'shop' does not exist in type 'ProductInclude<DefaultArgs>'.
+src/product/product.service.ts:321:16 - error TS2322: Type 'number' is not assignable to type 'string'.
 
-231         shop: true,
-            ~~~~
-
-  node_modules/.prisma/client/index.d.ts:12446:5
-    12446     include?: ProductInclude<ExtArgs> | null
-              ~~~~~~~
-    The expected type comes from property 'include' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; where: ProductWhereUniqueInput; }'
-
-src/product/product.service.ts:240:17 - error TS2339: Property 'shop' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'.
-
-240     if (product.shop.ownerId !== user.id && user.role !== 'ADMIN') {
-                    ~~~~
-
-src/product/product.service.ts:253:17 - error TS2322: Type 'number' is not assignable to type 'string | NestedUuidFilter<"Product"> | undefined'.
-
-253           id: { not: id },
-                    ~~~
-
-src/product/product.service.ts:264:16 - error TS2322: Type 'number' is not assignable to type 'string'.
-
-264       where: { id },
+321       where: { id },
                    ~~
 
   node_modules/.prisma/client/index.d.ts:49109:5
@@ -258,354 +439,200 @@ src/product/product.service.ts:264:16 - error TS2322: Type 'number' is not assig
               ~~
     The expected type comes from property 'id' which is declared here on type 'ProductWhereUniqueInput'
 
-src/product/product.service.ts:270:9 - error TS2353: Object literal may only specify known properties, and 'shop' does not exist in type 'ProductInclude<DefaultArgs>'.
+src/product/product.service.ts:322:7 - error TS2322: Type '{ name?: string | undefined; description?: string | undefined; categoryId?: number | undefined; subCategoryId?: number | undefined; brandId?: number | undefined; price?: number | undefined; ... 5 more ...; images?: string[] | undefined; }' is not assignable to type '(Without<ProductUpdateInput, ProductUncheckedUpdateInput> & ProductUncheckedUpdateInput) | (Without<...> & ProductUpdateInput)'.
+  Type '{ name?: string | undefined; description?: string | undefined; categoryId?: number | undefined; subCategoryId?: number | undefined; brandId?: number | undefined; price?: number | undefined; ... 5 more ...; images?: string[] | undefined; }' is not assignable to type 'Without<ProductUncheckedUpdateInput, ProductUpdateInput> & ProductUpdateInput'.
+    Type '{ name?: string | undefined; description?: string | undefined; categoryId?: number | undefined; subCategoryId?: number | undefined; brandId?: number | undefined; price?: number | undefined; ... 5 more ...; images?: string[] | undefined; }' is not assignable to type 'Without<ProductUncheckedUpdateInput, ProductUpdateInput>'.
+      Types of property 'categoryId' are incompatible.
+        Type 'number | undefined' is not assignable to type 'undefined'.
+          Type 'number' is not assignable to type 'undefined'.
 
-270         shop: {
-            ~~~~
-
-  node_modules/.prisma/client/index.d.ts:12697:5
-    12697     include?: ProductInclude<ExtArgs> | null
-              ~~~~~~~
-    The expected type comes from property 'include' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; data: 
-(Without<...> & ProductUncheckedUpdateInput) | (Without<...> & ProductUpdateInput); where: ProductWhereUniqueInput; }'
-
-src/product/product.service.ts:292:16 - error TS2322: Type 'number' is not assignable to type 'string'.
-
-292       where: { id },
-                   ~~
-
-  node_modules/.prisma/client/index.d.ts:49109:5
-    49109     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'ProductWhereUniqueInput'
-
-src/product/product.service.ts:294:9 - error TS2353: Object literal may only specify known properties, and 'shop' does not exist in type 'ProductInclude<DefaultArgs>'.
-
-294         shop: true,
-            ~~~~
-
-  node_modules/.prisma/client/index.d.ts:12446:5
-    12446     include?: ProductInclude<ExtArgs> | null
-              ~~~~~~~
-    The expected type comes from property 'include' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; where: ProductWhereUniqueInput; }'
-
-src/product/product.service.ts:303:17 - error TS2339: Property 'shop' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'.
-
-303     if (product.shop.ownerId !== user.id && user.role !== 'ADMIN') {
-                    ~~~~
-
-src/product/product.service.ts:309:16 - error TS2322: Type 'number' is not assignable to type 'string'.
-
-309       where: { id },
-                   ~~
-
-  node_modules/.prisma/client/index.d.ts:49109:5
-    49109     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'ProductWhereUniqueInput'
-
-src/product/product.service.ts:310:15 - error TS2353: Object literal may only specify known properties, and 'is_featured' does not exist in type '(Without<ProductUpdateInput, ProductUncheckedUpdateInput> & ProductUncheckedUpdateInput) | (Without<...> & ProductUpdateInput)'.
-
-310       data: { is_featured: featured },
-                  ~~~~~~~~~~~
+322       data: updateData,
+          ~~~~
 
   node_modules/.prisma/client/index.d.ts:12701:5
     12701     data: XOR<ProductUpdateInput, ProductUncheckedUpdateInput>
               ~~~~
     The expected type comes from property 'data' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; data: (Without<...> & ProductUncheckedUpdateInput) | (Without<...> & ProductUpdateInput); where: ProductWhereUniqueInput; }'
 
-src/product/product.service.ts:312:9 - error TS2353: Object literal may only specify known properties, and 'shop' does not exist in type 'ProductInclude<DefaultArgs>'.
+src/product/product.service.ts:334:21 - error TS2551: Property 'seller' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'. Did you mean 'sellerId'?
 
-312         shop: {
-            ~~~~
+334       shop: product.seller,
+                        ~~~~~~
 
-  node_modules/.prisma/client/index.d.ts:12697:5
-    12697     include?: ProductInclude<ExtArgs> | null
-              ~~~~~~~
-    The expected type comes from property 'include' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; data: 
-(Without<...> & ProductUncheckedUpdateInput) | (Without<...> & ProductUpdateInput); where: ProductWhereUniqueInput; }'
+src/product/product.service.ts:335:28 - error TS2339: Property 'featured' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'.
 
-src/product/product.service.ts:334:16 - error TS2322: Type 'number' is not assignable to type 'string'.
+335       is_featured: product.featured || false,
+                               ~~~~~~~~
 
-334       where: { id },
-                   ~~
+src/product/product.service.ts:336:29 - error TS2339: Property 'published' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'.
 
-  node_modules/.prisma/client/index.d.ts:49109:5
-    49109     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'ProductWhereUniqueInput'
+336       is_published: product.published || false,
+                                ~~~~~~~~~
 
-src/product/product.service.ts:336:9 - error TS2353: Object literal may only specify known properties, and 'shop' does not exist in type 'ProductInclude<DefaultArgs>'.
+src/product/product.service.ts:385:28 - error TS2339: Property 'featured' does not exist on type '{ seller: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }'.
 
-336         shop: true,
-            ~~~~
+385       is_featured: product.featured || false,
+                               ~~~~~~~~
 
-  node_modules/.prisma/client/index.d.ts:12446:5
-    12446     include?: ProductInclude<ExtArgs> | null
-              ~~~~~~~
-    The expected type comes from property 'include' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; where: ProductWhereUniqueInput; }'
+src/product/product.service.ts:386:29 - error TS2339: Property 'published' does not exist on type '{ seller: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }'.
 
-src/product/product.service.ts:345:17 - error TS2339: Property 'shop' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'.
+386       is_published: product.published || false,
+                                ~~~~~~~~~
 
-345     if (product.shop.ownerId !== user.id && user.role !== 'ADMIN') {
-                    ~~~~
+src/product/product.service.ts:416:15 - error TS2353: Object literal may only specify known properties, and 'featured' does not exist in type '(Without<ProductUpdateInput, ProductUncheckedUpdateInput> & ProductUncheckedUpdateInput) | (Without<...> & ProductUpdateInput)'.
 
-src/product/product.service.ts:351:16 - error TS2322: Type 'number' is not assignable to type 'string'.
-
-351       where: { id },
-                   ~~
-
-  node_modules/.prisma/client/index.d.ts:49109:5
-    49109     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'ProductWhereUniqueInput'
-
-src/product/product.service.ts:352:15 - error TS2353: Object literal may only specify known properties, and 'is_published' does not exist in type '(Without<ProductUpdateInput, ProductUncheckedUpdateInput> & ProductUncheckedUpdateInput) | (Without<...> & ProductUpdateInput)'.
-
-352       data: { is_published: published },
-                  ~~~~~~~~~~~~
+416       data: { featured },
+                  ~~~~~~~~
 
   node_modules/.prisma/client/index.d.ts:12701:5
     12701     data: XOR<ProductUpdateInput, ProductUncheckedUpdateInput>
               ~~~~
     The expected type comes from property 'data' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; data: (Without<...> & ProductUncheckedUpdateInput) | (Without<...> & ProductUpdateInput); where: ProductWhereUniqueInput; }'
 
-src/product/product.service.ts:354:9 - error TS2353: Object literal may only specify known properties, and 'shop' does not exist in type 'ProductInclude<DefaultArgs>'.
+src/product/product.service.ts:428:21 - error TS2551: Property 'seller' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'. Did you mean 'sellerId'?
 
-354         shop: {
-            ~~~~
+428       shop: product.seller,
+                        ~~~~~~
 
-  node_modules/.prisma/client/index.d.ts:12697:5
-    12697     include?: ProductInclude<ExtArgs> | null
-              ~~~~~~~
-    The expected type comes from property 'include' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; data: 
-(Without<...> & ProductUncheckedUpdateInput) | (Without<...> & ProductUpdateInput); where: ProductWhereUniqueInput; }'
+src/product/product.service.ts:430:29 - error TS2339: Property 'published' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'.
 
-src/product/product.service.ts:376:16 - error TS2322: Type 'number' is not assignable to type 'string'.
+430       is_published: product.published || false,
+                                ~~~~~~~~~
 
-376       where: { id },
-                   ~~
+src/product/product.service.ts:465:15 - error TS2353: Object literal may only specify known properties, and 'published' does not exist in type '(Without<ProductUpdateInput, ProductUncheckedUpdateInput> & ProductUncheckedUpdateInput) | (Without<...> & ProductUpdateInput)'.
 
-  node_modules/.prisma/client/index.d.ts:49109:5
-    49109     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'ProductWhereUniqueInput'
+465       data: { published },
+                  ~~~~~~~~~
 
-src/product/product.service.ts:378:9 - error TS2353: Object literal may only specify known properties, and 'shop' does not exist in type 'ProductInclude<DefaultArgs>'.
+  node_modules/.prisma/client/index.d.ts:12701:5
+    12701     data: XOR<ProductUpdateInput, ProductUncheckedUpdateInput>
+              ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; data: (Without<...> & ProductUncheckedUpdateInput) | (Without<...> & ProductUpdateInput); where: ProductWhereUniqueInput; }'
 
-378         shop: true,
-            ~~~~
+src/product/product.service.ts:477:21 - error TS2551: Property 'seller' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'. Did you mean 'sellerId'?
 
-  node_modules/.prisma/client/index.d.ts:12446:5
-    12446     include?: ProductInclude<ExtArgs> | null
-              ~~~~~~~
-    The expected type comes from property 'include' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; where: ProductWhereUniqueInput; }'
+477       shop: product.seller,
+                        ~~~~~~
 
-src/product/product.service.ts:387:17 - error TS2339: Property 'shop' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'.
+src/product/product.service.ts:478:28 - error TS2339: Property 'featured' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'.
 
-387     if (product.shop.ownerId !== user.id && user.role !== 'ADMIN') {
-                    ~~~~
+478       is_featured: product.featured || false,
+                               ~~~~~~~~
 
-src/product/product.service.ts:393:16 - error TS2322: Type 'number' is not assignable to type 'string'.
+src/product/product.service.ts:532:28 - error TS2339: Property 'featured' does not exist on type '{ seller: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }'.
 
-393       where: { id },
-                   ~~
+532       is_featured: product.featured || false,
+                               ~~~~~~~~
 
-  node_modules/.prisma/client/index.d.ts:49109:5
-    49109     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'ProductWhereUniqueInput'
+src/product/product.service.ts:533:29 - error TS2339: Property 'published' does not exist on type '{ seller: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; shopName: string; ... 4 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }'.
 
-src/review/review.service.ts:33:18 - error TS2353: Object literal may only specify known properties, and 'shopId' does not exist in type 'ProductWhereInput'.
+533       is_published: product.published || false,
+                                ~~~~~~~~~
 
-33         where: { shopId },
-                    ~~~~~~
+src/review/review.resolver.ts:54:31 - error TS2339: Property 'replyToReview' does not exist on type 'ReviewService'.
 
-src/review/review.service.ts:53:37 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
+54     return this.reviewService.replyToReview(replyReviewInput, user);
+                                 ~~~~~~~~~~~~~
 
-53     const count = await this.prisma.review.count({ where });
+src/review/review.service.ts:30:37 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
+
+30     const count = await this.prisma.review.count({ where });
                                        ~~~~~~
 
-src/review/review.service.ts:56:39 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
+src/review/review.service.ts:33:39 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
 
-56     const reviews = await this.prisma.review.findMany({
+33     const reviews = await this.prisma.review.findMany({
                                          ~~~~~~
 
-src/review/review.service.ts:96:38 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
+src/review/review.service.ts:69:38 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
 
-96     const review = await this.prisma.review.findUnique({
+69     const review = await this.prisma.review.findUnique({
                                         ~~~~~~
 
-src/review/review.service.ts:140:16 - error TS2322: Type 'number' is not assignable to type 'string'.
+src/review/review.service.ts:115:37 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
 
-140       where: { id: productId },
-                   ~~
+115     const count = await this.prisma.review.count({
+                                        ~~~~~~
 
-  node_modules/.prisma/client/index.d.ts:49109:5
-    49109     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'ProductWhereUniqueInput'
+src/review/review.service.ts:120:39 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
 
-src/review/review.service.ts:148:46 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
-
-148     const existingReview = await this.prisma.review.findFirst({
-                                                 ~~~~~~
-
-src/review/review.service.ts:160:38 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
-
-160     const review = await this.prisma.review.create({
-                                         ~~~~~~
-
-src/review/review.service.ts:207:38 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
-
-207     const review = await this.prisma.review.findUnique({
-                                         ~~~~~~
-
-src/review/review.service.ts:226:45 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
-
-226     const updatedReview = await this.prisma.review.update({
-                                                ~~~~~~
-
-src/review/review.service.ts:269:38 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
-
-269     const review = await this.prisma.review.findUnique({
-                                         ~~~~~~
-
-src/review/review.service.ts:299:45 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
-
-299     const updatedReview = await this.prisma.review.update({
-                                                ~~~~~~
-
-src/review/review.service.ts:337:38 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
-
-337     const review = await this.prisma.review.findUnique({
-                                         ~~~~~~
-
-src/review/review.service.ts:356:23 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
-
-356     await this.prisma.review.delete({
-                          ~~~~~~
-
-src/review/review.service.ts:372:39 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
-
-372     const reviews = await this.prisma.review.findMany({
+120     const reviews = await this.prisma.review.findMany({
                                           ~~~~~~
 
-src/review/review.service.ts:386:16 - error TS2322: Type 'number' is not assignable to type 'string'.
+src/review/review.service.ts:139:24 - error TS2339: Property 'rating' does not exist on type '{ name: string; id: string; updated_at: Date; created_at: Date; 
+mainCategoryId: string; categoryId: string; description: string | null; sellerId: string; brandId: string; unit: string | null; ... 22 more ...; deleted_at: Date | null; }'.
 
-386       where: { id: productId },
-                   ~~
+139       average: product.rating || 0,
+                           ~~~~~~
 
-  node_modules/.prisma/client/index.d.ts:49109:5
-    49109     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'ProductWhereUniqueInput'
+src/review/review.service.ts:170:37 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
 
-src/review/review.service.ts:388:9 - error TS2353: Object literal may only specify known properties, and 'rating' does not exist in type '(Without<ProductUpdateInput, ProductUncheckedUpdateInput> & ProductUncheckedUpdateInput) | (Without<...> & ProductUpdateInput)'.
+170     const count = await this.prisma.review.count({
+                                        ~~~~~~
 
-388         rating: averageRating,
-            ~~~~~~
+src/review/review.service.ts:175:39 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
+
+175     const reviews = await this.prisma.review.findMany({
+                                          ~~~~~~
+
+src/review/review.service.ts:215:46 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
+
+215     const existingReview = await this.prisma.review.findFirst({
+                                                 ~~~~~~
+
+src/review/review.service.ts:227:38 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
+
+227     const review = await this.prisma.review.create({
+                                         ~~~~~~
+
+src/review/review.service.ts:270:46 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
+
+270     const existingReview = await this.prisma.review.findUnique({
+                                                 ~~~~~~
+
+src/review/review.service.ts:284:38 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
+
+284     const review = await this.prisma.review.update({
+                                         ~~~~~~
+
+src/review/review.service.ts:326:46 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
+
+326     const existingReview = await this.prisma.review.findUnique({
+                                                 ~~~~~~
+
+src/review/review.service.ts:340:23 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
+
+340     await this.prisma.review.delete({
+                          ~~~~~~
+
+src/review/review.service.ts:356:39 - error TS2339: Property 'review' does not exist on type 'PrismaService'.
+
+356     const reviews = await this.prisma.review.findMany({
+                                          ~~~~~~
+
+src/review/review.service.ts:372:9 - error TS2353: Object literal may only specify known properties, and 'reviewRating' does not exist in type '(Without<ProductUpdateInput, ProductUncheckedUpdateInput> & ProductUncheckedUpdateInput) | (Without<...> & ProductUpdateInput)'.
+
+372         reviewRating: averageRating,
+            ~~~~~~~~~~~~
 
   node_modules/.prisma/client/index.d.ts:12701:5
     12701     data: XOR<ProductUpdateInput, ProductUncheckedUpdateInput>
               ~~~~
     The expected type comes from property 'data' which is declared here on type '{ select?: ProductSelect<DefaultArgs> | null | undefined; omit?: ProductOmit<DefaultArgs> | null | undefined; include?: ProductInclude<...> | ... 1 more ... | undefined; data: (Without<...> & ProductUncheckedUpdateInput) | (Without<...> & ProductUpdateInput); where: ProductWhereUniqueInput; }'
 
-src/shop/shop.service.ts:23:37 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
+src/user/entities/user.entity.ts:2:10 - error TS2305: Module '"@prisma/client"' has no exported member 'Role'.
 
-23     const count = await this.prisma.shop.count({ where });
-                                       ~~~~
+2 import { Role } from '@prisma/client';
+           ~~~~
 
-src/shop/shop.service.ts:26:37 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-26     const shops = await this.prisma.shop.findMany({
-                                       ~~~~
-
-src/shop/shop.service.ts:55:36 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-55     const shop = await this.prisma.shop.findUnique({
-                                      ~~~~
-
-src/shop/shop.service.ts:84:37 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-84     const shops = await this.prisma.shop.findMany({
-                                       ~~~~
-
-src/shop/shop.service.ts:111:44 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-111     const existingShop = await this.prisma.shop.findFirst({
-                                               ~~~~
-
-src/shop/shop.service.ts:120:44 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-120     const shopWithName = await this.prisma.shop.findFirst({
-                                               ~~~~
-
-src/shop/shop.service.ts:129:36 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-129     const shop = await this.prisma.shop.create({
-                                       ~~~~
-
-src/shop/shop.service.ts:166:36 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-166     const shop = await this.prisma.shop.findUnique({
-                                       ~~~~
-
-src/shop/shop.service.ts:181:46 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-181       const shopWithName = await this.prisma.shop.findFirst({
-                                                 ~~~~
-
-src/shop/shop.service.ts:194:43 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-194     const updatedShop = await this.prisma.shop.update({
-                                              ~~~~
-
-src/shop/shop.service.ts:221:36 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-221     const shop = await this.prisma.shop.findUnique({
-                                       ~~~~
-
-src/shop/shop.service.ts:230:43 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-230     const updatedShop = await this.prisma.shop.update({
-                                              ~~~~
-
-src/shop/shop.service.ts:257:36 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-257     const shop = await this.prisma.shop.findUnique({
-                                       ~~~~
-
-src/shop/shop.service.ts:266:43 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-266     const updatedShop = await this.prisma.shop.update({
-                                              ~~~~
-
-src/shop/shop.service.ts:293:36 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-293     const shop = await this.prisma.shop.findUnique({
-                                       ~~~~
-
-src/shop/shop.service.ts:307:23 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-307     await this.prisma.shop.delete({
-                          ~~~~
-
-src/shop/shop.service.ts:313:44 - error TS2339: Property 'shop' does not exist on type 'PrismaService'.
-
-313       const otherShops = await this.prisma.shop.findMany({
-                                               ~~~~
-
-src/user/user.resolver.ts:15:5 - error TS2322: Type '{ user: { name: string | null; id: string; phone: string; email: string | null; avatar: string | null; role: string; otp: string | null; provider: JsonValue | null; is_verified: boolean; is_banned: boolean; 
-updated_at: Date; created_at: Date; }; token: string; success: boolean; message: string; }' is not assignable to type 'AuthResponse'.
+src/user/user.resolver.ts:15:5 - error TS2322: Type '{ user: { name: string | null; id: string; phone: string; email: string | null; avatar: string | null; role: string; otp: string | null; provider: JsonValue | null; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; }; token: string; success: boolean; message: string; }' is not assignable to type 'AuthResponse'.
   The types of 'user.id' are incompatible between these types.
     Type 'string' is not assignable to type 'number'.
 
 15     return this.userService.signup(signupInput);
        ~~~~~~
 
-src/user/user.resolver.ts:20:5 - error TS2322: Type '{ user: { name: string | null; id: string; phone: string; email: string | null; avatar: string | null; role: string; otp: string | null; provider: JsonValue | null; is_verified: boolean; is_banned: boolean; 
-updated_at: Date; created_at: Date; }; token: string; success: boolean; message: string; }' is not assignable to type 'AuthResponse'.
+src/user/user.resolver.ts:20:5 - error TS2322: Type '{ user: { name: string | null; id: string; phone: string; email: string | null; avatar: string | null; role: string; otp: string | null; provider: JsonValue | null; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; }; token: string; success: boolean; message: string; }' is not assignable to type 'AuthResponse'.
   The types of 'user.id' are incompatible between these types.
     Type 'string' is not assignable to type 'number'.
 
@@ -619,60 +646,42 @@ src/user/user.resolver.ts:26:5 - error TS2322: Type '{ name: string | null; id: 
 26     return this.userService.getUserById(user.id);
        ~~~~~~
 
-src/user/user.resolver.ts:35:5 - error TS2322: Type '{ user: { name: string | null; id: string; phone: string; email: string | null; avatar: string | null; role: string; otp: string | null; provider: JsonValue | null; is_verified: boolean; is_banned: boolean; 
-updated_at: Date; created_at: Date; }; success: boolean; message: string; }' is not assignable to type 'AuthResponse'.
+src/user/user.resolver.ts:26:41 - error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+
+26     return this.userService.getUserById(user.id);
+                                           ~~~~~~~
+
+src/user/user.resolver.ts:35:5 - error TS2322: Type '{ user: { name: string | null; id: string; phone: string; email: string | null; avatar: string | null; role: string; otp: string | null; provider: JsonValue | null; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; }; success: boolean; message: string; }' is not assignable to type 'AuthResponse'.
   The types of 'user.id' are incompatible between these types.
     Type 'string' is not assignable to type 'number'.
 
 35     return this.userService.updateProfile(user.id, updateData);
        ~~~~~~
 
-src/user/user.service.ts:44:9 - error TS2322: Type 'number' is not assignable to type 'string'.
+src/user/user.resolver.ts:35:43 - error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
 
-44         userId,
-           ~~~~~~
+35     return this.userService.updateProfile(user.id, updateData);
+                                             ~~~~~~~
 
-  node_modules/.prisma/client/index.d.ts:51698:5
-    51698     userId: string
-              ~~~~~~
-    The expected type comes from property 'userId' which is declared here on type '(Without<SessionCreateInput, SessionUncheckedCreateInput> & SessionUncheckedCreateInput) | (Without<...> & SessionCreateInput)'
+src/user/user.resolver.ts:44:44 - error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
 
-src/user/user.service.ts:57:7 - error TS2322: Type '{ email: string; }' is not assignable to type 'UserWhereUniqueInput'.
-  Type '{ email: string; }' is not assignable to type '{ id: string; } & { id?: string | undefined; AND?: UserWhereInput | UserWhereInput[] | undefined; OR?: UserWhereInput[] | undefined; ... 25 more ...; usedCoupons?: UsedCouponListRelationFilter | undefined; }'.
-    Property 'id' is missing in type '{ email: string; }' but required in type '{ id: string; }'.
+44     return this.userService.changePassword(user.id, passwordData);
+                                              ~~~~~~~
 
-57       where: { email },
-         ~~~~~
+src/user/user.service.ts:46:9 - error TS2353: Object literal may only specify known properties, and 'expires' does not exist in type 'Without<SessionCreateInput, SessionUncheckedCreateInput> & SessionUncheckedCreateInput'.
 
-  node_modules/.prisma/client/index.d.ts:48685:5
-    48685     id?: string
-              ~~
-    'id' is declared here.
-  node_modules/.prisma/client/index.d.ts:7099:5
-    7099     where: UserWhereUniqueInput
-             ~~~~~
-    The expected type comes from property 'where' which is declared here on type '{ select?: UserSelect<DefaultArgs> | null | undefined; omit?: UserOmit<DefaultArgs> | null | undefined; include?: UserInclude<DefaultArgs> | null | undefined; where: UserWhereUniqueInput; }'
+46         expires: expiryDate,
+           ~~~~~~~
 
-src/user/user.service.ts:67:9 - error TS2322: Type '{ phone: string; }' is not assignable to type 'UserWhereUniqueInput'.
-  Type '{ phone: string; }' is not assignable to type '{ id: string; } & { id?: string | undefined; AND?: UserWhereInput | UserWhereInput[] | undefined; OR?: UserWhereInput[] | undefined; ... 25 more ...; usedCoupons?: UsedCouponListRelationFilter | undefined; }'.
-    Property 'id' is missing in type '{ phone: string; }' but required in type '{ id: string; }'.
+  node_modules/.prisma/client/index.d.ts:8651:5
+    8651     data: XOR<SessionCreateInput, SessionUncheckedCreateInput>
+             ~~~~
+    The expected type comes from property 'data' which is declared here on type '{ select?: SessionSelect<DefaultArgs> | null | undefined; omit?: SessionOmit<DefaultArgs> | null | undefined; include?: SessionInclude<...> | ... 1 more ... | undefined; data: (Without<...> & SessionUncheckedCreateInput) | (Without<...> & SessionCreateInput); }'
 
-67         where: { phone },
-           ~~~~~
+src/user/user.service.ts:84:9 - error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
 
-  node_modules/.prisma/client/index.d.ts:48685:5
-    48685     id?: string
-              ~~
-    'id' is declared here.
-  node_modules/.prisma/client/index.d.ts:7099:5
-    7099     where: UserWhereUniqueInput
-             ~~~~~
-    The expected type comes from property 'where' which is declared here on type '{ select?: UserSelect<DefaultArgs> | null | undefined; omit?: UserOmit<DefaultArgs> | null | undefined; include?: UserInclude<DefaultArgs> | null | undefined; where: UserWhereUniqueInput; }'
-
-src/user/user.service.ts:84:9 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-
-84         phone,
+84         phone: phone || null,
            ~~~~~
 
   node_modules/.prisma/client/index.d.ts:51555:5
@@ -680,139 +689,25 @@ src/user/user.service.ts:84:9 - error TS2322: Type 'string | undefined' is not a
               ~~~~~
     The expected type comes from property 'phone' which is declared here on type '(Without<UserCreateInput, UserUncheckedCreateInput> & UserUncheckedCreateInput) | (Without<...> & UserCreateInput)'
 
-src/user/user.service.ts:90:38 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
-
-90     const token = this.generateToken(newUser.id);
-                                        ~~~~~~~~~~
-
-src/user/user.service.ts:93:30 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
-
-93     await this.createSession(newUser.id, token);
-                                ~~~~~~~~~~
-
-src/user/user.service.ts:112:7 - error TS2322: Type '{ email: string; }' is not assignable to type 'UserWhereUniqueInput'.
-  Type '{ email: string; }' is not assignable to type '{ id: string; } & { id?: string | undefined; AND?: UserWhereInput | UserWhereInput[] | undefined; OR?: UserWhereInput[] | undefined; ... 25 more ...; usedCoupons?: UsedCouponListRelationFilter | undefined; }'.
-    Property 'id' is missing in type '{ email: string; }' but required in type '{ id: string; }'.
-
-112       where: { email },
-          ~~~~~
-
-  node_modules/.prisma/client/index.d.ts:48685:5
-    48685     id?: string
-              ~~
-    'id' is declared here.
-  node_modules/.prisma/client/index.d.ts:7099:5
-    7099     where: UserWhereUniqueInput
-             ~~~~~
-    The expected type comes from property 'where' which is declared here on type '{ select?: UserSelect<DefaultArgs> | null | undefined; omit?: UserOmit<DefaultArgs> | null | undefined; include?: UserInclude<DefaultArgs> | null | undefined; where: UserWhereUniqueInput; }'
-
-src/user/user.service.ts:116:57 - error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
-  Type 'null' is not assignable to type 'string'.
-
-116     if (!user || !(await this.comparePassword(password, user.password))) {
-                                                            ~~~~~~~~~~~~~
-
-src/user/user.service.ts:126:38 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
-
-126     const token = this.generateToken(user.id);
-                                         ~~~~~~~
-
-src/user/user.service.ts:129:30 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.        
-
-129     await this.createSession(user.id, token);
-                                 ~~~~~~~
-
-src/user/user.service.ts:145:16 - error TS2322: Type 'number' is not assignable to type 'string'.
-
-145       where: { id },
-                   ~~
-
-  node_modules/.prisma/client/index.d.ts:48685:5
-    48685     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'UserWhereUniqueInput'
-
-src/user/user.service.ts:161:16 - error TS2322: Type 'number' is not assignable to type 'string'.
-
-161       where: { id: userId },
-                   ~~
-
-  node_modules/.prisma/client/index.d.ts:48685:5
-    48685     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'UserWhereUniqueInput'
-
-src/user/user.service.ts:170:16 - error TS2322: Type 'number' is not assignable to type 'string'.
-
-170       where: { id: userId },
-                   ~~
-
-  node_modules/.prisma/client/index.d.ts:48685:5
-    48685     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'UserWhereUniqueInput'
-
-src/user/user.service.ts:189:16 - error TS2322: Type 'number' is not assignable to type 'string'.
-
-189       where: { id: userId },
-                   ~~
-
-  node_modules/.prisma/client/index.d.ts:48685:5
-    48685     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'UserWhereUniqueInput'
-
-src/user/user.service.ts:197:73 - error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'. 
-  Type 'null' is not assignable to type 'string'.
-
-197     const isPasswordValid = await this.comparePassword(currentPassword, user.password);
-                                                                            ~~~~~~~~~~~~~
-
-src/user/user.service.ts:207:16 - error TS2322: Type 'number' is not assignable to type 'string'.
-
-207       where: { id: userId },
-                   ~~
-
-  node_modules/.prisma/client/index.d.ts:48685:5
-    48685     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'UserWhereUniqueInput'
-
-src/wishlist/wishlist.resolver.ts:19:5 - error TS2322: Type '{ wishlists: { id: string; updated_at: Date; created_at: Date; userId: string | null; productId: string | null; }[]; count: number; success: boolean; message: string; }' is not assignable to type 'WishlistsResponse'.
+src/wishlist/wishlist.resolver.ts:19:5 - error TS2322: Type '{ wishlists: ({ product: ({ seller: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; ... 6 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }) | null; } & { ...; })[]; count: numb...' is not assignable to type 'WishlistsResponse'.
   Types of property 'wishlists' are incompatible.
-    Type '{ id: string; updated_at: Date; created_at: Date; userId: string | null; productId: string | null; }[]' is not assignable to type 'Wishlist[]'.
-      Type '{ id: string; updated_at: Date; created_at: Date; userId: string | null; productId: string | null; }' is not assignable to type 'Wishlist'.
+    Type '({ product: ({ seller: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; userId: string; logo: string; banner: string; ... 5 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }) | null; } & { ...; })[]' is not assignable to type 'Wishlist[]'.
+      Type '{ product: ({ seller: { id: string; phone: string; is_verified: boolean; is_banned: boolean; updated_at: Date; created_at: Date; address: string; 
+userId: string; logo: string; banner: string; ... 5 more ...; totalRating: number; }; category: { ...; }; brand: { ...; }; } & { ...; }) | null; } & { ...; }' is not assignable to type 'Wishlist'.
         Types of property 'id' are incompatible.
           Type 'string' is not assignable to type 'number'.
 
 19     return this.wishlistService.findAllForUser(user.id, filterInput);
        ~~~~~~
 
-src/wishlist/wishlist.resolver.ts:28:5 - error TS2322: Type '{ wishlist: { id: string; updated_at: Date; created_at: Date; userId: string | null; productId: string | null; }; success: boolean; message: string; }' is not assignable to type 'WishlistResponse'.  
-  The types of 'wishlist.id' are incompatible between these types.
-    Type 'string' is not assignable to type 'number'.
+src/wishlist/wishlist.resolver.ts:46:56 - error TS2353: Object literal may only specify known properties, and 'productId' does not exist in type 'RemoveWishlistInput'.
 
-28     return this.wishlistService.addToWishlist(createWishlistInput, user);
-       ~~~~~~
+46     const removeWishlistInput: RemoveWishlistInput = { productId: productId.toString() };
+                                                          ~~~~~~~~~
 
-src/wishlist/wishlist.service.ts:16:16 - error TS2322: Type 'number' is not assignable to type 'string | UuidNullableFilter<"Wishlist"> | null | undefined'.
+src/wishlist/wishlist.service.ts:68:16 - error TS2322: Type 'number' is not assignable to type 'string'.
 
-16       where: { userId },
-                  ~~~~~~
-
-src/wishlist/wishlist.service.ts:22:9 - error TS2322: Type 'number' is not assignable to type 'string | UuidNullableFilter<"Wishlist"> | null | undefined'.
-
-22         userId,
-           ~~~~~~
-
-src/wishlist/wishlist.service.ts:27:13 - error TS2353: Object literal may only specify known properties, and 'shop' does not exist in type 'ProductInclude<DefaultArgs>'.
-
-27             shop: true,
-               ~~~~
-
-src/wishlist/wishlist.service.ts:53:16 - error TS2322: Type 'number' is not assignable to type 'string'.
-
-53       where: { id: productId },
+68       where: { id: productId },
                   ~~
 
   node_modules/.prisma/client/index.d.ts:49109:5
@@ -820,72 +715,49 @@ src/wishlist/wishlist.service.ts:53:16 - error TS2322: Type 'number' is not assi
               ~~
     The expected type comes from property 'id' which is declared here on type 'ProductWhereUniqueInput'
 
-src/wishlist/wishlist.service.ts:63:9 - error TS2353: Object literal may only specify known properties, and 'userId_productId' does not exist in type 'WishlistWhereUniqueInput'.
+src/wishlist/wishlist.service.ts:79:9 - error TS2322: Type 'number' is not assignable to type 'string | UuidNullableFilter<"Wishlist"> | null | undefined'.
 
-63         userId_productId: {
-           ~~~~~~~~~~~~~~~~
-
-  node_modules/.prisma/client/index.d.ts:28973:5
-    28973     where: WishlistWhereUniqueInput
-              ~~~~~
-    The expected type comes from property 'where' which is declared here on type '{ select?: WishlistSelect<DefaultArgs> | null | 
-undefined; omit?: WishlistOmit<DefaultArgs> | null | undefined; include?: WishlistInclude<...> | ... 1 more ... | undefined; where: WishlistWhereUniqueInput; }'
-
-src/wishlist/wishlist.service.ts:78:9 - error TS2322: Type 'number' is not assignable to type 'string'.
-
-78         productId,
+79         productId,
            ~~~~~~~~~
+
+src/wishlist/wishlist.service.ts:102:9 - error TS2322: Type 'number' is not assignable to type 'string'.
+
+102         productId,
+            ~~~~~~~~~
 
   node_modules/.prisma/client/index.d.ts:53206:5
     53206     productId?: string | null
               ~~~~~~~~~
     The expected type comes from property 'productId' which is declared here on type '(Without<WishlistCreateInput, WishlistUncheckedCreateInput> & WishlistUncheckedCreateInput) | (Without<...> & WishlistCreateInput)'
 
-src/wishlist/wishlist.service.ts:98:16 - error TS2322: Type 'number' is not assignable to type 'string'.
+src/wishlist/wishlist.service.ts:119:16 - error TS2322: Type 'number' is not assignable to type 'string'.
 
-98       where: { id },
-                  ~~
-
-  node_modules/.prisma/client/index.d.ts:50143:5
-    50143     id?: string
-              ~~
-    The expected type comes from property 'id' which is declared here on type 'WishlistWhereUniqueInput'
-
-src/wishlist/wishlist.service.ts:112:16 - error TS2322: Type 'number' is not assignable to type 'string'.
-
-112       where: { id },
+119       where: { id: productId },
                    ~~
 
-  node_modules/.prisma/client/index.d.ts:50143:5
-    50143     id?: string
+  node_modules/.prisma/client/index.d.ts:49109:5
+    49109     id?: string
               ~~
-    The expected type comes from property 'id' which is declared here on type 'WishlistWhereUniqueInput'
+    The expected type comes from property 'id' which is declared here on type 'ProductWhereUniqueInput'
 
-src/wishlist/wishlist.service.ts:126:9 - error TS2353: Object literal may only specify known properties, and 'userId_productId' does not exist in type 'WishlistWhereUniqueInput'.
+src/wishlist/wishlist.service.ts:130:9 - error TS2322: Type 'number' is not assignable to type 'string | UuidNullableFilter<"Wishlist"> | null | undefined'.
 
-126         userId_productId: {
-            ~~~~~~~~~~~~~~~~
+130         productId,
+            ~~~~~~~~~
 
-  node_modules/.prisma/client/index.d.ts:28973:5
-    28973     where: WishlistWhereUniqueInput
-              ~~~~~
-    The expected type comes from property 'where' which is declared here on type '{ select?: WishlistSelect<DefaultArgs> | null | 
-undefined; omit?: WishlistOmit<DefaultArgs> | null | undefined; include?: WishlistInclude<...> | ... 1 more ... | undefined; where: WishlistWhereUniqueInput; }'
+src/wishlist/wishlist.service.ts:142:9 - error TS2322: Type 'number' is not assignable to type 'string'.
 
-src/wishlist/wishlist.service.ts:140:9 - error TS2353: Object literal may only specify known properties, and 'userId_productId' does not exist in type 'WishlistWhereUniqueInput'.
+142         productId,
+            ~~~~~~~~~
 
-140         userId_productId: {
-            ~~~~~~~~~~~~~~~~
+  node_modules/.prisma/client/index.d.ts:53206:5
+    53206     productId?: string | null
+              ~~~~~~~~~
+    The expected type comes from property 'productId' which is declared here on type '(Without<WishlistCreateInput, WishlistUncheckedCreateInput> & WishlistUncheckedCreateInput) | (Without<...> & WishlistCreateInput)'
 
-  node_modules/.prisma/client/index.d.ts:29328:5
-    29328     where: WishlistWhereUniqueInput
-              ~~~~~
-    The expected type comes from property 'where' which is declared here on type '{ select?: WishlistSelect<DefaultArgs> | null | 
-undefined; omit?: WishlistOmit<DefaultArgs> | null | undefined; include?: WishlistInclude<...> | ... 1 more ... | undefined; where: WishlistWhereUniqueInput; }'
+src/wishlist/wishlist.service.ts:158:13 - error TS2339: Property 'productId' does not exist on type 'RemoveWishlistInput'.
 
-src/wishlist/wishlist.service.ts:157:16 - error TS2322: Type 'number' is not assignable to type 'string | UuidNullableFilter<"Wishlist"> | null | undefined'.
+158     const { productId } = removeWishlistInput;
+                ~~~~~~~~~
 
-157       where: { userId },
-                   ~~~~~~
-
-[9:10:22 PM] Found 365 errors. Watching for file changes.
+[12:28:54 AM] Found 324 errors. Watching for file changes.
