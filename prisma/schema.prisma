@@ -439,6 +439,7 @@ enum PaymentTransactionStatus {
   SUCCESS
   FAILED
   REFUNDED
+  PARTIALLY_REFUNDED
   CANCELLED
 }
 
