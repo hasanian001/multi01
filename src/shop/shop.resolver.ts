@@ -26,7 +26,7 @@ export class ShopResolver {
   @Query(() => ShopsResponse)
   @UseGuards(AuthGuard)
   async myShops(@CurrentUser() user): Promise<ShopsResponse> {
-    return this.shopService.findByOwner(user.id);
+    return this.shopService.findMyShops(user.id);
   }
 
   @Mutation(() => ShopResponse)
@@ -51,7 +51,7 @@ export class ShopResolver {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('ADMIN')
   async verifyShop(@Args('id', { type: () => Int }) id: number): Promise<ShopResponse> {
-    return this.shopService.verifyShop(id);
+    return this.shopService.toggleVerification(id, true);
   }
 
   @Mutation(() => ShopResponse)
@@ -61,7 +61,7 @@ export class ShopResolver {
     @Args('id', { type: () => Int }) id: number,
     @Args('featured', { type: () => Boolean }) featured: boolean,
   ): Promise<ShopResponse> {
-    return this.shopService.featureShop(id, featured);
+    return this.shopService.toggleFeatured(id, featured);
   }
 
   @Mutation(() => MessageResponse)

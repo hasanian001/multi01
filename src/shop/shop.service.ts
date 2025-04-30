@@ -30,7 +30,7 @@ export class ShopService {
     `;
 
     // Get shops with applied filters
-    const shops = await this.prisma.$queryRaw`
+    const shops = await this.prisma.$queryRaw<any[]>`
       SELECT s.*, u.id as "userId", u.name as "userName", u.email as "userEmail" 
       FROM shops s
       LEFT JOIN "User" u ON s."ownerId" = u.id
@@ -64,7 +64,7 @@ export class ShopService {
 
   // Get shop by ID
   async findOne(id: number) {
-    const shop = await this.prisma.$queryRaw`
+    const shop = await this.prisma.$queryRaw<any[]>`
       SELECT s.*, u.id as "userId", u.name as "userName", u.email as "userEmail" 
       FROM shops s
       LEFT JOIN "User" u ON s."ownerId" = u.id
@@ -94,7 +94,7 @@ export class ShopService {
 
   // Get shops for a user
   async findMyShops(userId: number) {
-    const shops = await this.prisma.$queryRaw`
+    const shops = await this.prisma.$queryRaw<any[]>`
       SELECT * FROM shops
       WHERE "ownerId" = ${userId}
       ORDER BY created_at DESC
@@ -123,7 +123,7 @@ export class ShopService {
     }
 
     // Create new shop
-    const shop = await this.prisma.$queryRaw`
+    const shop = await this.prisma.$queryRaw<any[]>`
       INSERT INTO shops (name, description, logo, banner, "ownerId", "is_verified", "is_featured", created_at, updated_at)
       VALUES (
         ${createShopInput.name}, 
@@ -178,7 +178,7 @@ export class ShopService {
       };
     }
 
-    const shop = await this.prisma.$queryRaw`
+    const shop = await this.prisma.$queryRaw<any[]>`
       UPDATE shops
       SET ${setClause}, updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}
@@ -204,7 +204,7 @@ export class ShopService {
     }
 
     // Update verification status
-    const shop = await this.prisma.$queryRaw`
+    const shop = await this.prisma.$queryRaw<any[]>`
       UPDATE shops
       SET "is_verified" = ${isVerified}, updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}
@@ -230,7 +230,7 @@ export class ShopService {
     }
 
     // Update featured status
-    const shop = await this.prisma.$queryRaw`
+    const shop = await this.prisma.$queryRaw<any[]>`
       UPDATE shops
       SET "is_featured" = ${isFeatured}, updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}

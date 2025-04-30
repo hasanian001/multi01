@@ -380,6 +380,45 @@ export class ProductService {
       message: `Product ${featured ? 'featured' : 'unfeatured'} successfully`,
     };
   }
+  
+  // Toggle product published status (seller or admin)
+  async togglePublished(id: number, published: boolean, user: User) {
+    // Check if product exists
+    const existingProduct = await this.prisma.product.findUnique({
+      where: { id: String(id) },
+      include: {
+        seller: true,
+      },
+    });
+
+    if (!existingProduct) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    // Check if user has permission to update this product
+    if (user.role === 'SELLER') {
+      // Get the shop to check if the user is the owner
+      const shop = await this.prisma.shop.findUnique({
+        where: { id: existingProduct.shopId },
+      });
+
+      if (!shop || shop.ownerId !== user.id) {
+        throw new BadRequestException('You can only update products from your own shop');
+      }
+    }
+
+    // Update published status
+    const product = await this.prisma.product.update({
+      where: { id: String(id) },
+      data: { is_published: published },
+    });
+
+    return {
+      product,
+      success: true,
+      message: `Product ${published ? 'published' : 'unpublished'} successfully`,
+    };
+  }
 
   // Delete product
   async remove(id: number, user: User) {
@@ -417,6 +456,7 @@ export class ProductService {
     });
 
     return {
+      product,
       success: true,
       message: 'Product deleted successfully',
     };

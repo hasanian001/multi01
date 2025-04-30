@@ -4,8 +4,8 @@ import { PrismaClient } from '@prisma/client';
  * Type for PaymentTransaction model attributes
  */
 type PaymentTransactionAttributes = {
-  userId: number | string;
-  orderId: number | string;
+  userId: string;
+  orderId: string;
   status: string;
   provider: string;
   amount: number;
@@ -18,7 +18,7 @@ type PaymentTransactionAttributes = {
  * Type for PaymentRefund model attributes
  */
 type PaymentRefundAttributes = {
-  paymentTransactionId: number | string;
+  paymentTransactionId: string;
   amount: number;
   currency: string;
   refundId: string;
@@ -26,6 +26,12 @@ type PaymentRefundAttributes = {
   reason?: string;
   metadata?: Record<string, any>;
 };
+
+// Type for query parameters
+type QueryParam = string | number | boolean | null;
+// Arrays need to allow string elements
+type StringArray = Array<string>;
+type QueryParamArray = Array<QueryParam>;
 
 /**
  * Extends the Prisma client to ensure PaymentTransaction and PaymentRefund models
@@ -39,24 +45,29 @@ export function extendPrismaClient(prisma: PrismaClient) {
         async findUnique(args: { where: Record<string, any> }) {
           const { where } = args;
           if (where.transactionId) {
-            const results = await prisma.$queryRaw`
+            const results = await prisma.$queryRaw<any[]>`
               SELECT * FROM "PaymentTransaction" WHERE "transactionId" = ${where.transactionId} LIMIT 1
             `;
             return results[0] || null;
           } else if (where.id) {
-            const results = await prisma.$queryRaw`
+            const results = await prisma.$queryRaw<any[]>`
               SELECT * FROM "PaymentTransaction" WHERE "id" = ${where.id} LIMIT 1
             `;
             return results[0] || null;
           }
           return null;
         },
-        async findMany(args: { where?: Partial<PaymentTransactionAttributes>; orderBy?: Record<string, 'asc' | 'desc'>; skip?: number; take?: number }) {
+        async findMany(args: { 
+          where?: Partial<PaymentTransactionAttributes>; 
+          orderBy?: Record<string, 'asc' | 'desc'>; 
+          skip?: number; 
+          take?: number 
+        }) {
           const { where, orderBy, skip, take } = args || {};
           let query = `SELECT * FROM "PaymentTransaction"`;
           
-          const whereConditions: string[] = [];
-          const params: any[] = [];
+          const whereConditions: StringArray = [];
+          const params: QueryParamArray = [];
           
           // Build basic WHERE clause
           if (where) {
@@ -70,11 +81,11 @@ export function extendPrismaClient(prisma: PrismaClient) {
             }
             if (where.status) {
               whereConditions.push(`"status" = $${params.length + 1}`);
-              params.push(where.status as string);
+              params.push(where.status);
             }
             if (where.provider) {
               whereConditions.push(`"provider" = $${params.length + 1}`);
-              params.push(where.provider as string);
+              params.push(where.provider);
             }
           }
           
@@ -84,7 +95,7 @@ export function extendPrismaClient(prisma: PrismaClient) {
           
           // Ordering
           if (orderBy) {
-            const orderByClauses: string[] = [];
+            const orderByClauses: StringArray = [];
             for (const [field, direction] of Object.entries(orderBy)) {
               orderByClauses.push(`"${field}" ${direction === 'desc' ? 'DESC' : 'ASC'}`);
             }
@@ -101,14 +112,14 @@ export function extendPrismaClient(prisma: PrismaClient) {
             query += ` LIMIT ${take}`;
           }
           
-          return await prisma.$queryRawUnsafe(query, ...params);
+          return await prisma.$queryRawUnsafe<any[]>(query, ...params);
         },
         async count(args: { where?: Partial<PaymentTransactionAttributes> }) {
           const { where } = args || {};
           let query = `SELECT COUNT(*) FROM "PaymentTransaction"`;
           
-          const whereConditions: string[] = [];
-          const params: any[] = [];
+          const whereConditions: StringArray = [];
+          const params: QueryParamArray = [];
           
           if (where) {
             if (where.userId) {
@@ -121,11 +132,11 @@ export function extendPrismaClient(prisma: PrismaClient) {
             }
             if (where.status) {
               whereConditions.push(`"status" = $${params.length + 1}`);
-              params.push(where.status as string);
+              params.push(where.status);
             }
             if (where.provider) {
               whereConditions.push(`"provider" = $${params.length + 1}`);
-              params.push(where.provider as string);
+              params.push(where.provider);
             }
           }
           
@@ -133,8 +144,11 @@ export function extendPrismaClient(prisma: PrismaClient) {
             query += ` WHERE ${whereConditions.join(' AND ')}`;
           }
           
-          const result = await prisma.$queryRawUnsafe(query, ...params);
-          return Number(result[0].count);
+          const result = await prisma.$queryRawUnsafe<[{count: string}]>(query, ...params);
+          if (result && result[0]) {
+            return Number(result[0].count);
+          }
+          return 0;
         },
         async create(args: { data: Partial<PaymentTransactionAttributes> }) {
           const { data } = args;
@@ -148,8 +162,11 @@ export function extendPrismaClient(prisma: PrismaClient) {
             RETURNING *
           `;
           
-          const result = await prisma.$queryRawUnsafe(query, ...values);
-          return result[0];
+          const result = await prisma.$queryRawUnsafe<any[]>(query, ...values);
+          if (result && result.length > 0) {
+            return result[0];
+          }
+          return null;
         },
         async update(args: { where: Record<string, any>; data: Partial<PaymentTransactionAttributes> }) {
           const { where, data } = args;
@@ -183,8 +200,11 @@ export function extendPrismaClient(prisma: PrismaClient) {
             RETURNING *
           `;
           
-          const result = await prisma.$queryRawUnsafe(query, ...values);
-          return result[0];
+          const result = await prisma.$queryRawUnsafe<any[]>(query, ...values);
+          if (result && result.length > 0) {
+            return result[0];
+          }
+          return null;
         }
       },
       
@@ -202,8 +222,11 @@ export function extendPrismaClient(prisma: PrismaClient) {
             RETURNING *
           `;
           
-          const result = await prisma.$queryRawUnsafe(query, ...values);
-          return result[0];
+          const result = await prisma.$queryRawUnsafe<any[]>(query, ...values);
+          if (result && result.length > 0) {
+            return result[0];
+          }
+          return null;
         },
         async update(args: { where: Record<string, any>; data: Partial<PaymentRefundAttributes> }) {
           const { where, data } = args;
@@ -232,8 +255,11 @@ export function extendPrismaClient(prisma: PrismaClient) {
             RETURNING *
           `;
           
-          const result = await prisma.$queryRawUnsafe(query, ...values);
-          return result[0];
+          const result = await prisma.$queryRawUnsafe<any[]>(query, ...values);
+          if (result && result.length > 0) {
+            return result[0];
+          }
+          return null;
         },
         async aggregate(args: { where?: Partial<PaymentRefundAttributes>; _sum?: Record<string, boolean> }) {
           const { where, _sum } = args;
@@ -244,7 +270,7 @@ export function extendPrismaClient(prisma: PrismaClient) {
           }
           
           let whereClause = '';
-          const values: any[] = [];
+          const values: QueryParamArray = [];
           if (where && where.paymentTransactionId) {
             whereClause = `WHERE "paymentTransactionId" = $1`;
             values.push(where.paymentTransactionId);
@@ -256,19 +282,34 @@ export function extendPrismaClient(prisma: PrismaClient) {
             ${whereClause}
           `;
           
-          const result = await prisma.$queryRawUnsafe(query, ...values);
+          const result = await prisma.$queryRawUnsafe<[{result: string}]>(query, ...values);
           
           // Expected format for aggregate result
+          if (result && result.length > 0) {
+            if (_sum && _sum.amount) {
+              return {
+                _sum: {
+                  amount: Number(result[0].result) || 0
+                }
+              };
+            }
+            
+            return {
+              _count: Number(result[0].result)
+            };
+          }
+          
+          // Return default values if no result
           if (_sum && _sum.amount) {
             return {
               _sum: {
-                amount: Number(result[0].result) || 0
+                amount: 0
               }
             };
           }
           
           return {
-            _count: Number(result[0].result)
+            _count: 0
           };
         }
       }

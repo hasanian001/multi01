@@ -21,8 +21,8 @@ export class ReviewService {
 
     // Build filter conditions
     const where: any = {
-      ...(productId && { productId: Number(productId) }),
-      ...(userId && { userId: Number(userId) }),
+      ...(productId && { productId: String(productId) }),
+      ...(userId && { userId: String(userId) }),
       ...(rating && { rating: Number(rating) }),
     };
 
@@ -47,6 +47,7 @@ export class ReviewService {
             name: true,
             slug: true,
             images: true,
+            seller: true,
           },
         },
       },
@@ -66,7 +67,7 @@ export class ReviewService {
   // Get review by ID
   async findOne(id: number) {
     const review = await this.prisma.review.findUnique({
-      where: { id },
+      where: { id: String(id) },
       include: {
         user: {
           select: {
@@ -82,6 +83,7 @@ export class ReviewService {
             name: true,
             slug: true,
             images: true,
+            seller: true,
           },
         },
       },
@@ -102,7 +104,7 @@ export class ReviewService {
   async findByProduct(productId: number, sortOrder: 'asc' | 'desc' = 'desc', limit: number = 10, offset: number = 0) {
     // Check if product exists
     const product = await this.prisma.product.findUnique({
-      where: { id: Number(productId) },
+      where: { id: String(productId) },
     });
 
     if (!product) {
@@ -111,12 +113,12 @@ export class ReviewService {
 
     // Get total count for pagination
     const count = await this.prisma.review.count({
-      where: { productId: Number(productId) },
+      where: { productId: String(productId) },
     });
 
     // Get reviews for the product
     const reviews = await this.prisma.review.findMany({
-      where: { productId: Number(productId) },
+      where: { productId: String(productId) },
       include: {
         user: {
           select: {
@@ -157,7 +159,7 @@ export class ReviewService {
   async findByUser(userId: number, sortOrder: 'asc' | 'desc' = 'desc', limit: number = 10, offset: number = 0) {
     // Check if user exists
     const user = await this.prisma.user.findUnique({
-      where: { id: Number(userId) },
+      where: { id: String(userId) },
     });
 
     if (!user) {
@@ -166,12 +168,12 @@ export class ReviewService {
 
     // Get total count for pagination
     const count = await this.prisma.review.count({
-      where: { userId: Number(userId) },
+      where: { userId: String(userId) },
     });
 
     // Get reviews by the user
     const reviews = await this.prisma.review.findMany({
-      where: { userId: Number(userId) },
+      where: { userId: String(userId) },
       include: {
         product: {
           select: {
@@ -179,6 +181,7 @@ export class ReviewService {
             name: true,
             slug: true,
             images: true,
+            seller: true,
           },
         },
       },
@@ -201,7 +204,7 @@ export class ReviewService {
 
     // Check if product exists
     const product = await this.prisma.product.findUnique({
-      where: { id: Number(productId) },
+      where: { id: String(productId) },
     });
 
     if (!product) {
@@ -211,8 +214,8 @@ export class ReviewService {
     // Check if user has already reviewed this product
     const existingReview = await this.prisma.review.findFirst({
       where: {
-        productId: Number(productId),
-        userId: user.id,
+        productId: String(productId),
+        userId: String(user.id),
       },
     });
 
@@ -223,8 +226,8 @@ export class ReviewService {
     // Create review
     const review = await this.prisma.review.create({
       data: {
-        productId: Number(productId),
-        userId: user.id,
+        productId: String(productId),
+        userId: String(user.id),
         rating,
         comment,
       },
@@ -243,6 +246,7 @@ export class ReviewService {
             name: true,
             slug: true,
             images: true,
+            seller: true,
           },
         },
       },
@@ -264,7 +268,7 @@ export class ReviewService {
 
     // Check if review exists
     const existingReview = await this.prisma.review.findUnique({
-      where: { id },
+      where: { id: String(id) },
     });
 
     if (!existingReview) {
@@ -272,13 +276,13 @@ export class ReviewService {
     }
 
     // Check if user owns this review
-    if (existingReview.userId !== user.id && user.role !== 'ADMIN') {
+    if (existingReview.userId !== String(user.id) && user.role !== 'ADMIN') {
       throw new BadRequestException('You can only update your own reviews');
     }
 
     // Update review
     const review = await this.prisma.review.update({
-      where: { id },
+      where: { id: String(id) },
       data: {
         ...(rating !== undefined && { rating }),
         ...(comment !== undefined && { comment }),
@@ -298,6 +302,7 @@ export class ReviewService {
             name: true,
             slug: true,
             images: true,
+            seller: true,
           },
         },
       },
@@ -305,7 +310,7 @@ export class ReviewService {
 
     // Update product rating if the rating was changed
     if (rating !== undefined) {
-      await this.updateProductRating(existingReview.productId);
+      await this.updateProductRating(Number(existingReview.productId));
     }
 
     return {
@@ -319,7 +324,7 @@ export class ReviewService {
   async remove(id: number, user: User) {
     // Check if review exists
     const existingReview = await this.prisma.review.findUnique({
-      where: { id },
+      where: { id: String(id) },
     });
 
     if (!existingReview) {
@@ -327,17 +332,17 @@ export class ReviewService {
     }
 
     // Check if user owns this review or is an admin
-    if (existingReview.userId !== user.id && user.role !== 'ADMIN') {
+    if (existingReview.userId !== String(user.id) && user.role !== 'ADMIN') {
       throw new BadRequestException('You can only delete your own reviews');
     }
 
     // Delete review
     await this.prisma.review.delete({
-      where: { id },
+      where: { id: String(id) },
     });
 
     // Update product rating
-    await this.updateProductRating(existingReview.productId);
+    await this.updateProductRating(Number(existingReview.productId));
 
     return {
       success: true,
@@ -349,7 +354,7 @@ export class ReviewService {
   private async updateProductRating(productId: number) {
     // Get all reviews for this product
     const reviews = await this.prisma.review.findMany({
-      where: { productId: Number(productId) },
+      where: { productId: String(productId) },
       select: { rating: true },
     });
 
@@ -362,9 +367,9 @@ export class ReviewService {
 
     // Update product with new average rating
     await this.prisma.product.update({
-      where: { id: Number(productId) },
+      where: { id: String(productId) },
       data: {
-        rating: averageRating,
+        reviewRating: averageRating,
         totalReviews: reviews.length,
       },
     });

@@ -136,6 +136,16 @@ export class ProductResolver {
     @CurrentUser() user,
   ): Promise<ProductResponse> {
     const result = await this.productService.remove(id, user);
+    
+    // The remove method may not return a product, just success and message
+    if (!result.product) {
+      return {
+        product: null,
+        success: result.success,
+        message: result.message
+      };
+    }
+    
     // Convert the product object to the expected Product type
     return {
       product: {
