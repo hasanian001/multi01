@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { WishlistService } from './wishlist.service';
 import { Wishlist, WishlistResponse, WishlistsResponse } from './entities/wishlist.entity';
@@ -16,7 +16,26 @@ export class WishlistResolver {
     @CurrentUser() user,
     @Args('filterInput', { nullable: true }) filterInput?: WishlistFilterInput,
   ): Promise<WishlistsResponse> {
-    return this.wishlistService.findAllForUser(user.id, filterInput);
+    // Convert wishlists to match the entity structure
+    const result = await this.wishlistService.findAllForUser(user.id, filterInput);
+    
+    // Ensure all IDs are properly formatted
+    const wishlists = result.wishlists.map(item => ({
+      ...item,
+      id: typeof item.id === 'string' ? parseInt(item.id, 10) : item.id,
+      userId: item.userId || user.id,
+      productId: item.productId,
+      product: item.product ? {
+        ...item.product,
+        id: typeof item.product.id === 'string' ? parseInt(item.product.id, 10) : item.product.id,
+        shopId: typeof item.product.shopId === 'string' ? parseInt(item.product.shopId, 10) : item.product.shopId
+      } : null
+    }));
+    
+    return {
+      ...result,
+      wishlists
+    };
   }
 
   @Mutation(() => WishlistResponse)
@@ -40,10 +59,10 @@ export class WishlistResolver {
   @Mutation(() => WishlistResponse)
   @UseGuards(AuthGuard)
   async removeProductFromWishlist(
-    @Args('productId', { type: () => Int }) productId: number,
+    @Args('productId', { type: () => ID }) productId: string,
     @CurrentUser() user,
   ): Promise<WishlistResponse> {
-    const removeWishlistInput: RemoveWishlistInput = { productId: productId.toString() };
+    const removeWishlistInput: RemoveWishlistInput = { productId };
     return this.wishlistService.removeFromWishlist(removeWishlistInput, user);
   }
 

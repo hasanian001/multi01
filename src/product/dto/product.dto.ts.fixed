@@ -1,0 +1,273 @@
+import { InputType, Field, ID, Float, Int } from '@nestjs/graphql';
+import { IsString, IsOptional, MinLength, IsInt, IsPositive, IsNumber, Min, Max, IsArray, IsBoolean, IsUrl, ArrayMinSize, ArrayMaxSize } from 'class-validator';
+import { Type } from 'class-transformer';
+
+@InputType()
+export class CreateProductInput {
+  @Field()
+  @IsString()
+  @MinLength(3, { message: 'Product name must be at least 3 characters long' })
+  name: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @Field(() => ID)
+  @IsString()
+  shopId: string;
+
+  @Field(() => ID)
+  @IsString()
+  categoryId: string;
+
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  subCategoryId?: string;
+
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  brandId?: string;
+
+  @Field(() => Float)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0.01)
+  @Type(() => Number)
+  price: number;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0.01)
+  @Type(() => Number)
+  sale_price?: number;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  sku?: string;
+
+  @Field(() => Int)
+  @IsInt()
+  @Min(0)
+  @Type(() => Number)
+  stock: number;
+
+  @Field(() => Boolean, { defaultValue: false })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  is_featured?: boolean;
+
+  @Field(() => Boolean, { defaultValue: true })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  is_published?: boolean;
+
+  @Field(() => [String])
+  @IsArray()
+  @ArrayMinSize(1, { message: 'At least one image is required' })
+  @ArrayMaxSize(10, { message: 'Maximum 10 images allowed' })
+  @IsUrl({}, { each: true, message: 'All images must be valid URLs' })
+  images: string[];
+}
+
+@InputType()
+export class UpdateProductInput {
+  @Field(() => ID)
+  @IsString()
+  id: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MinLength(3, { message: 'Product name must be at least 3 characters long' })
+  name?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  categoryId?: string;
+
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  subCategoryId?: string;
+
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  brandId?: string;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0.01)
+  @Type(() => Number)
+  price?: number;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0.01)
+  @Type(() => Number)
+  sale_price?: number;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  sku?: string;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Type(() => Number)
+  stock?: number;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  is_featured?: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  is_published?: boolean;
+
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(1, { message: 'At least one image is required' })
+  @ArrayMaxSize(10, { message: 'Maximum 10 images allowed' })
+  @IsUrl({}, { each: true, message: 'All images must be valid URLs' })
+  images?: string[];
+}
+
+@InputType()
+export class ProductFilterInput {
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  shopId?: string;
+
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  categoryId?: string;
+
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  subCategoryId?: string;
+
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  brandId?: string;
+
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsString()
+  mainCategoryId?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  status?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  featured?: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  trending?: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  bestSelling?: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  newArrival?: boolean;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  minPrice?: number;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  maxPrice?: number;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  is_featured?: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  is_published?: boolean;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  @Type(() => Number)
+  limit?: number;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Type(() => Number)
+  offset?: number;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  sortOrder?: 'asc' | 'desc';
+}

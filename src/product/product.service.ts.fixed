@@ -75,14 +75,24 @@ export class ProductService {
     });
 
     // Transform products to match Product entity
-    const transformedProducts = products.map(product => ({
-      ...product,
-      slug: generateUniqueSlug(product.name),
-      shop: product.seller,
-      is_featured: product.featured || false,
-      is_published: product.published || false,
-      stock: product.quantity || 0,
-    }));
+    const transformedProducts = products.map(product => {
+      // Convert seller to shop format
+      const sellerObj = product.seller || {};
+      const shopId = product.sellerId || product.shopId || '0';
+      
+      return {
+        ...product,
+        slug: generateUniqueSlug(product.name),
+        shop: sellerObj,
+        shopId: typeof shopId === 'string' ? parseInt(shopId, 10) : shopId,
+        is_featured: product.featured || false,
+        is_published: product.published || false,
+        stock: product.quantity || 0,
+        // Keep original seller for compatibility
+        seller: product.seller,
+        sellerId: product.sellerId
+      };
+    });
 
     return {
       products: transformedProducts,
@@ -108,13 +118,21 @@ export class ProductService {
     }
 
     // Transform product to match Product entity
+    // Convert seller to shop format
+    const sellerObj = product.seller || {};
+    const shopId = product.sellerId || product.shopId || '0';
+      
     const transformedProduct = {
       ...product,
       slug: generateUniqueSlug(product.name),
-      shop: product.seller,
+      shop: sellerObj,
+      shopId: typeof shopId === 'string' ? parseInt(shopId, 10) : shopId,
       is_featured: product.featured || false,
       is_published: product.published || false,
       stock: product.quantity || 0,
+      // Keep original seller for compatibility
+      seller: product.seller,
+      sellerId: product.sellerId
     };
 
     return {
@@ -182,14 +200,24 @@ export class ProductService {
     });
 
     // Transform products to match Product entity
-    const transformedProducts = products.map(product => ({
-      ...product,
-      slug: generateUniqueSlug(product.name),
-      shop: product.seller,
-      is_featured: product.featured || false,
-      is_published: product.published || false,
-      stock: product.quantity || 0,
-    }));
+    const transformedProducts = products.map(product => {
+      // Convert seller to shop format
+      const sellerObj = product.seller || {};
+      const shopId = product.sellerId || product.shopId || '0';
+      
+      return {
+        ...product,
+        slug: generateUniqueSlug(product.name),
+        shop: sellerObj,
+        shopId: typeof shopId === 'string' ? parseInt(shopId, 10) : shopId,
+        is_featured: product.featured || false,
+        is_published: product.published || false,
+        stock: product.quantity || 0,
+        // Keep original seller for compatibility
+        seller: product.seller,
+        sellerId: product.sellerId
+      };
+    });
 
     return {
       products: transformedProducts,
@@ -225,13 +253,21 @@ export class ProductService {
     });
 
     // Transform product to match Product entity
+    // Convert seller to shop format
+    const sellerObj = product.seller || {};
+    const shopId = product.sellerId || product.shopId || '0';
+      
     const transformedProduct = {
       ...product,
       slug: generateUniqueSlug(product.name),
-      shop: product.seller,
+      shop: sellerObj,
+      shopId: typeof shopId === 'string' ? parseInt(shopId, 10) : shopId,
       is_featured: product.featured || false,
       is_published: product.published || false,
       stock: product.quantity || 0,
+      // Keep original seller for compatibility
+      seller: product.seller,
+      sellerId: product.sellerId
     };
 
     return {
@@ -276,13 +312,21 @@ export class ProductService {
     });
 
     // Transform product to match Product entity
+    // Convert seller to shop format
+    const sellerObj = product.seller || {};
+    const finalShopId = product.sellerId || product.shopId || '0';
+      
     const transformedProduct = {
       ...product,
       slug: generateUniqueSlug(product.name),
-      shop: product.seller,
+      shop: sellerObj,
+      shopId: typeof finalShopId === 'string' ? parseInt(finalShopId, 10) : finalShopId,
       is_featured: product.featured || false,
       is_published: product.published || false,
       stock: product.quantity || 0,
+      // Keep original seller for compatibility
+      seller: product.seller,
+      sellerId: product.sellerId
     };
 
     return {
@@ -328,13 +372,21 @@ export class ProductService {
     });
 
     // Transform product to match Product entity
+    // Convert seller to shop format
+    const sellerObj = product.seller || {};
+    const shopId = product.sellerId || product.shopId || '0';
+      
     const transformedProduct = {
       ...product,
       slug: generateUniqueSlug(product.name),
-      shop: product.seller,
+      shop: sellerObj,
+      shopId: typeof shopId === 'string' ? parseInt(shopId, 10) : shopId,
       is_featured: product.featured || false,
       is_published: product.published || false,
       stock: product.quantity || 0,
+      // Keep original seller for compatibility
+      seller: product.seller,
+      sellerId: product.sellerId
     };
 
     return {
@@ -378,13 +430,21 @@ export class ProductService {
     });
 
     // Transform product to match Product entity
+    // Convert seller to shop format
+    const sellerObj = product.seller || {};
+    const shopId = product.sellerId || product.shopId || '0';
+      
     const transformedProduct = {
       ...product,
       slug: generateUniqueSlug(product.name),
-      shop: product.seller,
+      shop: sellerObj,
+      shopId: typeof shopId === 'string' ? parseInt(shopId, 10) : shopId,
       is_featured: product.featured || false,
       is_published: product.published || false,
       stock: product.quantity || 0,
+      // Keep original seller for compatibility
+      seller: product.seller,
+      sellerId: product.sellerId
     };
 
     return {
@@ -422,13 +482,21 @@ export class ProductService {
     });
 
     // Transform product to match Product entity
+    // Convert seller to shop format
+    const sellerObj = product.seller || {};
+    const shopId = product.sellerId || product.shopId || '0';
+      
     const transformedProduct = {
       ...product,
       slug: generateUniqueSlug(product.name),
-      shop: product.seller,
+      shop: sellerObj,
+      shopId: typeof shopId === 'string' ? parseInt(shopId, 10) : shopId,
       is_featured: featured,
       is_published: product.published || false,
       stock: product.quantity || 0,
+      // Keep original seller for compatibility
+      seller: product.seller,
+      sellerId: product.sellerId
     };
 
     return {
@@ -471,13 +539,21 @@ export class ProductService {
     });
 
     // Transform product to match Product entity
+    // Convert seller to shop format
+    const sellerObj = product.seller || {};
+    const shopId = product.sellerId || product.shopId || '0';
+      
     const transformedProduct = {
       ...product,
       slug: generateUniqueSlug(product.name),
-      shop: product.seller,
+      shop: sellerObj,
+      shopId: typeof shopId === 'string' ? parseInt(shopId, 10) : shopId,
       is_featured: product.featured || false,
       is_published: published,
       stock: product.quantity || 0,
+      // Keep original seller for compatibility
+      seller: product.seller,
+      sellerId: product.sellerId
     };
 
     return {
@@ -525,13 +601,21 @@ export class ProductService {
     });
 
     // Transform product to match Product entity
+    // Convert seller to shop format
+    const sellerObj = product.seller || {};
+    const shopId = product.sellerId || product.shopId || '0';
+      
     const transformedProduct = {
       ...product,
       slug: generateUniqueSlug(product.name),
-      shop: product.seller,
+      shop: sellerObj,
+      shopId: typeof shopId === 'string' ? parseInt(shopId, 10) : shopId,
       is_featured: product.featured || false,
       is_published: product.published || false,
       stock: product.quantity || 0,
+      // Keep original seller for compatibility
+      seller: product.seller,
+      sellerId: product.sellerId
     };
 
     return {
