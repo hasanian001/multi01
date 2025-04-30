@@ -8,6 +8,6 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "excludeFiles": ["**/temp/**/*", "**/excluded-folder/**/*"],
-    "exclude": ["temp", "excluded-folder"]
+    "exclude": ["node_modules", "dist", "test", "temp"]
   }
 }

@@ -1,0 +1,231 @@
+import { Injectable, BadRequestException, ConflictException, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcrypt';
+import { PrismaService } from '../prisma/prisma.service';
+import { SignupInput, LoginInput, UpdateUserInput, ChangePasswordInput, ForgetPasswordInput, ResetPasswordInput, VerifyEmailInput } from './dto/user.dto';
+
+@Injectable()
+export class UserService {
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+    private configService: ConfigService,
+  ) {}
+
+  // Helper method to hash password
+  private async hashPassword(password: string): Promise<string> {
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(password, salt);
+  }
+
+  // Helper method to compare password
+  private async comparePassword(providedPass: string, storedPass: string): Promise<boolean> {
+    return bcrypt.compare(providedPass, storedPass);
+  }
+
+  // Helper method to generate JWT
+  private generateToken(userId: number): string {
+    const payload = { id: userId };
+    return this.jwtService.sign(payload, {
+      secret: this.configService.get<string>('JWT_SECRET'),
+      expiresIn: '30d',
+    });
+  }
+
+  // Create a new session for a user
+  private async createSession(userId: number, token: string): Promise<void> {
+    // Calculate expiry date (30 days from now)
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 30);
+
+    await this.prisma.session.create({
+      data: {
+        userId,
+        cookie: token,
+        expires: expiryDate,
+      },
+    });
+  }
+
+  // Register a new user
+  async signup(signupInput: SignupInput) {
+    const { email, password, name, phone } = signupInput;
+
+    // Check if user with email already exists
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
+    }
+
+    // Check if user with phone already exists (if provided)
+    if (phone) {
+      const userWithPhone = await this.prisma.user.findUnique({
+        where: { phone },
+      });
+
+      if (userWithPhone) {
+        throw new ConflictException('User with this phone number already exists');
+      }
+    }
+
+    // Hash password
+    const hashedPassword = await this.hashPassword(password);
+
+    // Create new user
+    const newUser = await this.prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+        phone,
+        role: 'USER', // Default role
+      },
+    });
+
+    // Generate JWT token
+    const token = this.generateToken(newUser.id);
+
+    // Create session
+    await this.createSession(newUser.id, token);
+
+    // Return user data (excluding password)
+    const { password: _, ...userWithoutPassword } = newUser;
+
+    return {
+      user: userWithoutPassword,
+      token,
+      success: true,
+      message: 'User registered successfully',
+    };
+  }
+
+  // Login a user
+  async login(loginInput: LoginInput) {
+    const { email, password } = loginInput;
+
+    // Find user by email
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    // If user doesn't exist or password doesn't match
+    if (!user || !(await this.comparePassword(password, user.password))) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    // Check if user is banned
+    if (user.is_banned) {
+      throw new UnauthorizedException('Your account has been banned. Please contact support.');
+    }
+
+    // Generate JWT token
+    const token = this.generateToken(user.id);
+
+    // Create session
+    await this.createSession(user.id, token);
+
+    // Return user data (excluding password)
+    const { password: _, ...userWithoutPassword } = user;
+
+    return {
+      user: userWithoutPassword,
+      token,
+      success: true,
+      message: 'Login successful',
+    };
+  }
+
+  // Get user by ID
+  async getUserById(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Return user data (excluding password)
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
+  // Update user profile
+  async updateProfile(userId: number, updateData: UpdateUserInput) {
+    // Find user first to check if exists
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Update user data
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+
+    // Return user data (excluding password)
+    const { password, ...userWithoutPassword } = updatedUser;
+    return {
+      user: userWithoutPassword,
+      success: true,
+      message: 'Profile updated successfully',
+    };
+  }
+
+  // Change password
+  async changePassword(userId: number, passwordData: ChangePasswordInput) {
+    const { currentPassword, newPassword } = passwordData;
+
+    // Find user
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Verify current password
+    const isPasswordValid = await this.comparePassword(currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    // Hash new password
+    const hashedPassword = await this.hashPassword(newPassword);
+
+    // Update password
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return {
+      success: true,
+      message: 'Password changed successfully',
+    };
+  }
+
+  // Logout user - invalidate session
+  async logout(token: string) {
+    await this.prisma.session.deleteMany({
+      where: { cookie: token },
+    });
+
+    return {
+      success: true,
+      message: 'Logged out successfully',
+    };
+  }
+
+  // TODO: Implement email verification, password reset and other user functions
+  // These would typically involve sending emails/SMS with verification codes
+}

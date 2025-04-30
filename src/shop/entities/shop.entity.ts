@@ -1,0 +1,65 @@
+import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { User } from '../../user/entities/user.entity';
+
+@ObjectType()
+export class Shop {
+  @Field(() => ID)
+  id: number;
+
+  @Field()
+  name: string;
+
+  @Field({ nullable: true })
+  description?: string | null;
+
+  @Field({ nullable: true })
+  logo?: string | null;
+
+  @Field({ nullable: true })
+  banner?: string | null;
+
+  @Field(() => ID)
+  ownerId: number;
+
+  @Field(() => User, { nullable: true })
+  owner?: any;
+
+  @Field()
+  is_verified: boolean;
+
+  @Field()
+  is_featured: boolean;
+
+  @Field()
+  created_at: Date;
+
+  @Field()
+  updated_at: Date;
+}
+
+@ObjectType()
+export class ShopResponse {
+  @Field(() => Shop, { nullable: true })
+  shop?: Shop;
+
+  @Field()
+  success: boolean;
+
+  @Field()
+  message: string;
+}
+
+@ObjectType()
+export class ShopsResponse {
+  @Field(() => [Shop])
+  shops: Shop[];
+
+  @Field()
+  success: boolean;
+
+  @Field()
+  message: string;
+
+  @Field()
+  count: number;
+}

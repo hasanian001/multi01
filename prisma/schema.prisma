@@ -1,0 +1,422 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication and profile management
+model User {
+  id          Int       @id @default(autoincrement())
+  name        String
+  email       String    @unique
+  password    String
+  phone       String?   @unique
+  avatar      String?
+  address     String?
+  role        Role      @default(USER)
+  is_verified Boolean   @default(false)
+  is_banned   Boolean   @default(false)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  sessions     Session[]
+  shops        Shop[]
+  orders       Order[]
+  reviews      Review[]
+  addresses    Address[]
+  carts        Cart[]
+  wishlists    Wishlist[]
+  coupons      CouponUser[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+// Role enum for user permissions
+enum Role {
+  USER
+  SELLER
+  EDITOR
+  MODERATOR
+  ADMIN
+}
+
+// Session model for authentication management
+model Session {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  cookie     String   @unique
+  expires    DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// Shop model for sellers' stores
+model Shop {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  logo        String?
+  banner      String?
+  ownerId     Int
+  is_verified Boolean   @default(false)
+  is_featured Boolean   @default(false)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  owner     User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  products  Product[]
+
+  @@map("shops")
+}
+
+// Main category for product categorization
+model MainCategory {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  slug        String    @unique
+  icon        String?
+  image       String?
+  is_featured Boolean   @default(false)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  categories Category[]
+
+  @@map("main_categories")
+}
+
+// Category model (sub-category of MainCategory)
+model Category {
+  id              Int       @id @default(autoincrement())
+  name            String
+  slug            String    @unique
+  icon            String?
+  image           String?
+  mainCategoryId  Int
+  is_featured     Boolean   @default(false)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  // Relations
+  mainCategory    MainCategory @relation(fields: [mainCategoryId], references: [id], onDelete: Cascade)
+  subCategories   SubCategory[]
+  products        Product[]
+
+  @@map("categories")
+}
+
+// Sub-category model
+model SubCategory {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @unique
+  categoryId  Int
+  is_featured Boolean   @default(false)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  products    Product[]
+
+  @@map("sub_categories")
+}
+
+// Brand model for product brands
+model Brand {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  slug        String    @unique
+  logo        String?
+  is_featured Boolean   @default(false)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  products    Product[]
+
+  @@map("brands")
+}
+
+// Attribute model for product attributes (like color, size, etc.)
+model Attribute {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  values      AttributeValue[]
+
+  @@map("attributes")
+}
+
+// Attribute value model
+model AttributeValue {
+  id          Int       @id @default(autoincrement())
+  value       String
+  attributeId Int
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  attribute   Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  productAttributes ProductAttribute[]
+
+  @@map("attribute_values")
+}
+
+// Product model
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @unique
+  description String?   @db.Text
+  shopId      Int
+  categoryId  Int
+  subCategoryId Int?
+  brandId     Int?
+  price       Float
+  sale_price  Float?
+  sku         String?
+  stock       Int       @default(0)
+  is_featured Boolean   @default(false)
+  is_published Boolean  @default(true)
+  images      String[]  // Array of image URLs
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  shop        Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  category    Category  @relation(fields: [categoryId], references: [id])
+  subCategory SubCategory? @relation(fields: [subCategoryId], references: [id])
+  brand       Brand?    @relation(fields: [brandId], references: [id])
+  attributes  ProductAttribute[]
+  orderItems  OrderItem[]
+  cartItems   CartItem[]
+  reviews     Review[]
+  wishlists   Wishlist[]
+
+  @@map("products")
+}
+
+// Product Attribute junction table
+model ProductAttribute {
+  id          Int       @id @default(autoincrement())
+  productId   Int
+  attributeValueId Int
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attributeValue AttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+
+  @@map("product_attributes")
+}
+
+// Order model
+model Order {
+  id              Int       @id @default(autoincrement())
+  userId          Int
+  status          OrderStatus @default(PENDING)
+  total           Float
+  shipping_fee    Float     @default(0)
+  discount        Float     @default(0)
+  payment_method  String?
+  payment_status  PaymentStatus @default(PENDING)
+  transaction_id  String?
+  delivery_address String?
+  notes           String?
+  tracking_number String?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+
+  @@map("orders")
+}
+
+// OrderItem model for items in an order
+model OrderItem {
+  id          Int       @id @default(autoincrement())
+  orderId     Int
+  productId   Int
+  quantity    Int
+  price       Float
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+// Order status enum
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+// Payment status enum
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+// Review model for product reviews
+model Review {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  productId   Int
+  rating      Int
+  comment     String?   @db.Text
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+// Address model for user addresses
+model Address {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  name        String?
+  address     String
+  city        String
+  state       String?
+  country     String
+  zip         String?
+  phone       String?
+  is_default  Boolean   @default(false)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("addresses")
+}
+
+// Cart model
+model Cart {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       CartItem[]
+
+  @@map("carts")
+}
+
+// CartItem model for items in a cart
+model CartItem {
+  id          Int       @id @default(autoincrement())
+  cartId      Int
+  productId   Int
+  quantity    Int
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  cart        Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id])
+
+  @@map("cart_items")
+}
+
+// Wishlist model
+model Wishlist {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  productId   Int
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("wishlists")
+}
+
+// Coupon model
+model Coupon {
+  id          Int       @id @default(autoincrement())
+  code        String    @unique
+  discount    Float
+  expires     DateTime?
+  max_uses    Int?
+  uses        Int       @default(0)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  users       CouponUser[]
+
+  @@map("coupons")
+}
+
+// CouponUser junction table for tracking coupon usage
+model CouponUser {
+  id          Int       @id @default(autoincrement())
+  couponId    Int
+  userId      Int
+  created_at  DateTime  @default(now())
+
+  // Relations
+  coupon      Coupon    @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([couponId, userId])
+  @@map("coupon_users")
+}
+
+// Notification model
+model Notification {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  title       String
+  message     String
+  is_read     Boolean   @default(false)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
